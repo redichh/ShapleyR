@@ -19,7 +19,7 @@ shapley <- function(row.nr, task = bh.task, learner = "regr.lm",
   iterations = 50, method = "default") {
 
   #FIXME: assert_factor(method, levels=c("default", "kernel"))
-  #FIXME: remove at least one loop with vectorized operations (apply)
+  #FIXME: remove at least one loop with vectorized operations (e.g. apply)
   mod = train(learner, task)
   x = getTaskData(task)[row.nr,]
   phi = as.data.frame(matrix(data = 0, nrow = 1, ncol = getTaskNFeats(task)))
