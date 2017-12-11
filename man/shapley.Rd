@@ -4,15 +4,16 @@
 \alias{shapley}
 \title{Describes the difference between the expected value and the true outcome.}
 \usage{
-shapley(x, data, algorithm, method = "default")
+shapley(row.nr, task = bh.task, learner = "regr.lm", iterations = 50,
+  method = "default")
 }
 \arguments{
+\item{method}{Determines how the shapley value is calculated. Possible
+selections are "default" or "kernel".}
+
 \item{x}{A single observation of interest.}
 
 \item{data}{The dataset that contains x.}
-
-\item{method}{Determines how the shapley value is calculated. Possible
-selections are "default" or "regression".}
 
 \item{algoirthm}{The algorithm that computes the expected value/class of x.}
 }
