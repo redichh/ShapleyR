@@ -1,2 +1,6 @@
 language: r
+sudo: required
 cache: packages
+
+# Be strict when checking our package
+warnings_are_errors: true
