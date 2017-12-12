@@ -7,19 +7,21 @@
 #' @description Takes an observation, the corresponding dataset where x is from
 #'   and the algorithm that was applied to the dataset. With this input the
 #'   shapley value for all features is calculated.
-#' @param x A single observation of interest.
-#' @param data The dataset that contains x.
-#' @param algoirthm The algorithm that computes the expected value/class of x.
+#' @param row.nr Index for the observation of interest.
+#' @param task mlr task that contains the data set.
+#' @param learner Learner or String that determines the mlr learning algorithm.
+#' @param iterations Amount of iterations.
 #' @param method Determines how the shapley value is calculated. Possible
 #'   selections are "default" or "kernel".
-#' @return shapley value as a matrix with col.names and their corresponding
+#' @return shapley value as a data.frame with col.names and their corresponding
 #'   effects.
 #' @export
 shapley <- function(row.nr, task = bh.task, learner = "regr.lm",
   iterations = 50, method = "default") {
 
   #FIXME: assert_factor(method, levels=c("default", "kernel"))
-  #FIXME: remove at least one loop with vectorized operations (e.g. apply)
+  #FIXME: remove at least one loop with vectorized operations (e.g. apply) see
+  # branch hredich_parallel_phi_20171212
   mod = train(learner, task)
   x = getTaskData(task)[row.nr,]
   phi = as.data.frame(matrix(data = 0, nrow = 1, ncol = getTaskNFeats(task)))

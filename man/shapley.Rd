@@ -8,17 +8,19 @@ shapley(row.nr, task = bh.task, learner = "regr.lm", iterations = 50,
   method = "default")
 }
 \arguments{
+\item{row.nr}{Index for the observation of interest.}
+
+\item{task}{mlr task that contains the data set.}
+
+\item{learner}{Learner or String that determines the mlr learning algorithm.}
+
+\item{iterations}{Amount of iterations.}
+
 \item{method}{Determines how the shapley value is calculated. Possible
 selections are "default" or "kernel".}
-
-\item{x}{A single observation of interest.}
-
-\item{data}{The dataset that contains x.}
-
-\item{algoirthm}{The algorithm that computes the expected value/class of x.}
 }
 \value{
-shapley value as a matrix with col.names and their corresponding
+shapley value as a data.frame with col.names and their corresponding
   effects.
 }
 \description{
