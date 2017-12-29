@@ -16,7 +16,7 @@
 #' @return shapley value as a data.frame with col.names and their corresponding
 #'   effects.
 #' @export
-shapley <- function(row.nr, task = bh.task, learner = "regr.lm",
+shapley = function(row.nr, task = bh.task, learner = "regr.lm",
   iterations = 50, method = "default") {
 
   #FIXME: assert_factor(method, levels=c("default", "kernel"))
@@ -28,12 +28,12 @@ shapley <- function(row.nr, task = bh.task, learner = "regr.lm",
     mod = train(learner, task)
   }
   x = getTaskData(task)[row.nr,]
-  phi = as.data.frame(matrix(data = 0, nrow = 1, ncol = getTaskNFeats(task)))
+  phi = as.data.frame(matrix(data = 0, nrow = nrow(x), ncol = getTaskNFeats(task)))
   names(phi) = getTaskFeatureNames(task)
 
   for(feature in getTaskFeatureNames(task)) {
     for(i in 1:iterations) {
-      z = getTaskData(task)[sample(getTaskSize(task), 1),]
+      z = getTaskData(task)[sample(getTaskSize(task), nrow(x)),]
       perm = sample(getTaskFeatureNames(task))
       position = match(feature, perm)
 
@@ -46,5 +46,76 @@ shapley <- function(row.nr, task = bh.task, learner = "regr.lm",
     }
   }
 
-  return(phi / iterations)
+  return(round(phi / iterations, 3))
 }
+
+plot.shapley.singleValue = function(row.nr, shap.values = NULL, target = "medv",
+  task = bh.task, learner = "regr.lm") {
+
+  if (is.null(shap.values))
+    shap.values = shapley(row.nr)
+
+  mod = train(learner, task)
+  pred =
+    getPredictionResponse(predict(mod, newdata = getTaskData(bh.task)[row.nr,]))
+
+  points = compute.shapley.positions(shap.values, pred)
+  ggplot(points, aes(x = values, y = 0, colour = values)) +
+    geom_line(size = 4) +
+    coord_cartesian(ylim = c(-0.4, 0.4)) +
+    scale_colour_gradientn(colours=rainbow(4)) +
+    geom_text_repel(aes(label=names), colour = "black") +
+#    size = 4, vjust = "top", hjust = points$align, angle = 20) +
+    geom_point(aes(x = round(obs$medv, 3), y = 0.1), colour = "black", size = 3) +
+    theme(axis.title.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.position = "none")
+}
+
+plot.shapley.multipleValue = function(row.nr, shap.values = NULL, target = "medv",
+  task = bh.task, learner = "regr.lm") {
+
+  if (is.null(shap.values))
+    shap.values = shapley(row.nr)
+
+  data = data.frame(matrix(data = 0, nrow = length(row.nr), ncol = 4))
+  names(data) = c("truth", "response", "position", "color")
+  data$truth = getTaskData(bh.task)[row.nr, target]
+  data$response = rowSums(shap.values) + data$truth
+  data$position = row.nr
+  data$color = ifelse(data$truth > data$response, "red", "green")
+
+  #FIXME: change color acording to what line is below/above
+  #FIXME: add useful legend
+  ggplot(data, aes(x = position, y = truth, colour = "black")) +
+    geom_ribbon(aes(x = position, ymax = truth, ymin = response), fill = "blue", alpha = .1) +
+    geom_line(aes(x = position, y = response, colour = "green"))
+}
+
+compute.shapley.positions = function(points, shift) {
+  points.minus = -1 * sort(points[which(points < 0)])
+  points.plus  = -1 * sort(points[which(points >= 0)], decreasing = TRUE)
+
+  for(i in 2:length(points.minus))
+    points.minus[i] = points.minus[i-1] + points.minus[i]
+  for(i in 2:length(points.plus))
+    points.plus[i] = points.plus[i-1] + points.plus[i]
+  positions = sort(cbind(points.minus, 0, points.plus))
+  result = data.frame(cbind(names(positions), t(round(positions + shift, 3))))
+  names(result) = c("names", "values")
+  result$values = sapply(sapply(result$values, as.character), as.numeric)
+  result$values = result$values
+  result$align = ifelse(result$values > shift,"right", "left")
+  rownames(result) = c()
+
+  return(result)
+}
+
+
+
+
+
+
+
+
