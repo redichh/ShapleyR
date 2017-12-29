@@ -55,9 +55,13 @@ plot.shapley.singleValue = function(row.nr, shap.values = NULL, target = "medv",
   if (is.null(shap.values))
     shap.values = shapley(row.nr)
 
-  mod = train(learner, task)
+  if(class(learner) == "WrappedModel") {
+    mod = learner
+  } else {
+    mod = train(learner, task)
+  }
   pred =
-    getPredictionResponse(predict(mod, newdata = getTaskData(bh.task)[row.nr,]))
+    getPredictionResponse(predict(mod, newdata = getTaskData(task)[row.nr,]))
 
   points = compute.shapley.positions(shap.values, pred)
   ggplot(points, aes(x = values, y = 0, colour = values)) +
@@ -66,7 +70,7 @@ plot.shapley.singleValue = function(row.nr, shap.values = NULL, target = "medv",
     scale_colour_gradientn(colours=rainbow(4)) +
     geom_text_repel(aes(label=names), colour = "black") +
 #    size = 4, vjust = "top", hjust = points$align, angle = 20) +
-    geom_point(aes(x = round(obs$medv, 3), y = 0.1), colour = "black", size = 3) +
+    # geom_point(aes(x = round(obs$medv, 3), y = 0.1), colour = "black", size = 3) +
     theme(axis.title.y = element_blank(),
       axis.text.y = element_blank(),
       axis.ticks.y = element_blank(),
