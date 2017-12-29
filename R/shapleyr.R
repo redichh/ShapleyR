@@ -22,7 +22,11 @@ shapley <- function(row.nr, task = bh.task, learner = "regr.lm",
   #FIXME: assert_factor(method, levels=c("default", "kernel"))
   #FIXME: remove at least one loop with vectorized operations (e.g. apply) see
   # branch hredich_parallel_phi_20171212
-  mod = train(learner, task)
+  if(class(learner) == "WrappedModel") {
+    mod = learner
+  } else {
+    mod = train(learner, task)
+  }
   x = getTaskData(task)[row.nr,]
   phi = as.data.frame(matrix(data = 0, nrow = 1, ncol = getTaskNFeats(task)))
   names(phi) = getTaskFeatureNames(task)
