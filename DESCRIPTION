@@ -1,10 +1,13 @@
 Package: shapleyr
 Title: Shapley algorithm
-Version: 0.0.0.9
-Authors@R: person("Hermann", "Redich", email = "redichh@googlemail.com", role = c("aut", "cre"))
+Version: 0.1
+Authors@R: person("Hermann", "Redich", email = "hredich@googlemail.com", role = c("aut", "cre"))
 Description: Implementation of the Shapley algorithm and graphics to show the influence of features/shapley values.
 Depends: R (>= 3.4.2)
 License: MIT
 Encoding: UTF-8
 LazyData: true
+Imports:
+	mlr,
+	ggplot2
 RoxygenNote: 6.0.1
