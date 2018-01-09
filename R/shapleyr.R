@@ -21,6 +21,7 @@ shapley = function(row.nr, task = bh.task, learner = "regr.lm",
 
   #FIXME: add version with unsampled permutation for small feature vectors
   #FIXME: assert_factor(method, levels=c("default", "kernel"))
+  #FIXME: Packages from DESCRIPTION.Imports are not imported correctly...
   mod = train(learner, task)
   x = getTaskData(task)[row.nr,]
   phi = as.data.frame(matrix(data = 0, nrow = nrow(x) * iterations, ncol = getTaskNFeats(task)))

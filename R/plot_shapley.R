@@ -18,8 +18,8 @@ plot.shapley.singleValue = function(row.nr, shap.values = NULL, target = "medv",
 
   mod = train(learner, task)
   pred =
-    getPredictionResponse(predict(mod, newdata = getTaskData(bh.task)[row.nr,]))
-  data.mean = mean(getPredictionTruth(predict(mod, newdata = getTaskData(bh.task))))
+    getPredictionResponse(predict(mod, newdata = getTaskData(task)[row.nr,]))
+  data.mean = mean(getPredictionTruth(predict(mod, newdata = getTaskData(task))))
 
   points = compute.shapley.positions(shap.values, pred)
   ggplot(points, aes(x = values, y = 0, colour = values)) +
@@ -55,7 +55,7 @@ plot.shapley.multipleValues = function(row.nr, shap.values = NULL, target = "med
 
   data = data.frame(matrix(data = 0, nrow = length(row.nr), ncol = 4))
   names(data) = c("truth", "response", "position", "color")
-  data$truth = getTaskData(bh.task)[row.nr, target]
+  data$truth = getTaskData(task)[row.nr, target]
   data$response = rowSums(shap.values) + data$truth
   data$position = row.nr
   data$color = ifelse(data$truth > data$response, "red", "green")
