@@ -19,16 +19,15 @@ plot.shapley.singleValue = function(row.nr, shap.values = NULL, target = "medv",
   mod = train(learner, task)
   pred =
     getPredictionResponse(predict(mod, newdata = getTaskData(task)[row.nr,]))
-  data.mean = mean(getPredictionTruth(predict(mod, newdata = getTaskData(task))))
-  points = compute.shapley.positions(shap.values, pred)
+  data.mean = mean(getTaskData(bh.task)[,target])
+  points = compute.shapley.positions(shap.values, data.mean)
 
-  ggplot(points, aes(x = values, y = 0, colour = values)) +
-    geom_line(size = 4) +
+  ggplot(points, aes(x = values, y = 0)) +
+    geom_line(aes(colour = sort(rnorm(14))), size = 30) +
+    scale_colour_gradient2(low="red", high="blue") +
     coord_cartesian(ylim = c(-0.4, 0.4)) +
-    scale_colour_gradientn(colours=rainbow(4)) +
-    geom_text_repel(aes(label=names), colour = "black") +
-    #    size = 4, vjust = "top", hjust = points$align, angle = 20) +
-    geom_point(aes(x = round(data.mean, 3), y = 0.1), colour = "black", size = 3) +
+    geom_text(aes(label=names), size = 4, angle = 70) +
+    geom_point(aes(x = round(pred, 3), y = 0.1), colour = "black", size = 3) +
     theme(axis.title.y = element_blank(),
       axis.text.y = element_blank(),
       axis.ticks.y = element_blank(),
@@ -55,8 +54,8 @@ plot.shapley.multipleValues = function(row.nr, shap.values = NULL, target = "med
 
   data = data.frame(matrix(data = 0, nrow = length(row.nr), ncol = 4))
   names(data) = c("truth", "response", "position", "color")
-  data$truth = getTaskData(task)[row.nr, target]
   data$response = rowSums(shap.values) + data$truth
+  data$mean = mean(getTaskData(task)[, target])
   data$position = row.nr
   data$color = ifelse(data$truth > data$response, "red", "green")
 
@@ -76,15 +75,15 @@ plot.shapley.multipleValues = function(row.nr, shap.values = NULL, target = "med
 #' @param points shapley.values
 #' @param shift data.mean
 compute.shapley.positions = function(points, shift = 0) {
-  points.minus = cumsum(1 * sort(points[which(points < 0)]))
-  points.plus  = cumsum(1 * sort(points[which(points >= 0)], decreasing = TRUE))
-  positions = sort(cbind(points.minus, 0, points.plus))
+  points.minus = sort(points[which(points < 0)])
+  points.plus = sort(points[which(points >= 0)], decreasing = TRUE)
+  points.labels = c(names(rev(points.minus)), "0", names(points.plus))
+  positions = sort(c(cumsum(t(points.minus)), 0, cumsum(t(points.plus))))
 
-  result = data.frame(cbind(names(positions), t(round(positions + shift, 3))))
-  names(result) = c("names", "values")
-  result$values = sapply(sapply(result$values, as.character), as.numeric)
+  result = data.frame(round(positions + shift, 3))
+  names(result) = c("values")
+  result$names = points.labels
   result$align = ifelse(result$values > shift,"right", "left")
-  rownames(result) = c()
 
   return(result)
 }
