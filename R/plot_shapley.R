@@ -20,8 +20,8 @@ plot.shapley.singleValue = function(row.nr, shap.values = NULL, target = "medv",
   pred =
     getPredictionResponse(predict(mod, newdata = getTaskData(task)[row.nr,]))
   data.mean = mean(getPredictionTruth(predict(mod, newdata = getTaskData(task))))
-
   points = compute.shapley.positions(shap.values, pred)
+
   ggplot(points, aes(x = values, y = 0, colour = values)) +
     geom_line(size = 4) +
     coord_cartesian(ylim = c(-0.4, 0.4)) +
@@ -71,18 +71,13 @@ plot.shapley.multipleValues = function(row.nr, shap.values = NULL, target = "med
 
 #' Calculates the positions of the features influence for the plot.singleValue.
 #'
-#' @description This method draws a plot for the data.mean, the observed value
-#'   and describes the influence of features/variables for this difference.
-#' @param row.nr Index for the observations of interest.
-#' @param shap.values (Optional) A data.frame that contains the shapley values. If
-#'   no shap.values are given the default algorithm is used to calculate the
-#'   shapley values for the given observation.
-#' @param target The name of the dependent variable.
-#' @param task mlr task that contains the data set.
-#' @param learner Learner or String that determines the mlr learning algorithm.
-compute.shapley.positions = function(points, shift) {
-  points.minus = cumsum(-1 * sort(points[which(points < 0)]))
-  points.plus  = cumsum(-1 * sort(points[which(points >= 0)], decreasing = TRUE))
+#' @description Orders the values by their sign and value, shifts them and returns
+#'   them as a vector.
+#' @param points shapley.values
+#' @param shift data.mean
+compute.shapley.positions = function(points, shift = 0) {
+  points.minus = cumsum(1 * sort(points[which(points < 0)]))
+  points.plus  = cumsum(1 * sort(points[which(points >= 0)], decreasing = TRUE))
   positions = sort(cbind(points.minus, 0, points.plus))
 
   result = data.frame(cbind(names(positions), t(round(positions + shift, 3))))

@@ -16,13 +16,15 @@
 #' @return shapley value as a data.frame with col.names and their corresponding
 #'   effects.
 #' @export
-shapley = function(row.nr, task = bh.task, learner = "regr.lm",
+shapley = function(row.nr, task = bh.task, learner = "regr.lm", model = NA,
   iterations = 50, method = "default") {
 
   #FIXME: add version with unsampled permutation for small feature vectors
-  #FIXME: assert_factor(method, levels=c("default", "kernel"))
+  #FIXME: assert_numeric(row.nr, nmin = 1)/assert_class(model, "WrappedModel")
   #FIXME: Packages from DESCRIPTION.Imports are not imported correctly...
-  mod = train(learner, task)
+  #FIXME: add further methods = c("default", "kernel", "exact", "hayvan-dividente"))
+  #FIXME: test/implement further task kinds (classification, clustering)
+  mod = if mod == NA train(learner, task) else mod
   x = getTaskData(task)[row.nr,]
   phi = as.data.frame(matrix(data = 0, nrow = nrow(x) * iterations, ncol = getTaskNFeats(task)))
   names(phi) = getTaskFeatureNames(task)
@@ -38,21 +40,20 @@ shapley = function(row.nr, task = bh.task, learner = "regr.lm",
       position = match(feature, perm)
 
       s = (i - 1) * nrow(x) + 1
-      pred = if(position == 1) NULL else perm[1:(position - 1)]
+      prec = if(position == 1) NULL else perm[1:(position - 1)]
       succ = if(position == length(perm)) NULL else perm[(position + 1):length(perm)]
-      b1[s:(s + nrow(x) - 1), perm] = cbind(x[pred], x[feature], z[succ])
-      b2[s:(s + nrow(x) - 1), perm] = cbind(x[pred], z[feature], z[succ])
+      b1[s:(s + nrow(x) - 1), perm] = cbind(x[prec], x[feature], z[succ])
+      b2[s:(s + nrow(x) - 1), perm] = cbind(x[prec], z[feature], z[succ])
     }
 
-    phi[feature] = phi[feature] +
-      getPredictionResponse(predict(mod, newdata = b1)) -
+    phi[feature] = getPredictionResponse(predict(mod, newdata=b1)) -
       getPredictionResponse(predict(mod, newdata = b2))
   }
 
-  result = as.data.frame(matrix(data=0, ncol = ncol(phi), nrow = nrow(x)))
+  result = as.data.frame(matrix(data=0, ncol=ncol(phi), nrow=nrow(x)))
   names(result) = names(b1)
   for(i in 1:nrow(x))
-    result[i,] = round(colSums(phi[seq(i, nrow(phi), nrow(x)), ]), 3)
+    result[i,] = colMeans(phi[seq(from=i, to=nrow(phi), by=nrow(x)), ])
 
-  return(round(result / iterations, 3))
+  return(round(result, 3))
 }
