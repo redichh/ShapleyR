@@ -1,5 +1,10 @@
 language: r
 sudo: required
 
-# Be strict when checking our package
+# (Do not) be strict when checking our package
 warnings_are_errors: false
+r_packages:
+ - mlr
+ - ggplot2
+ - ggrepel
+ - devtools
