@@ -10,16 +10,16 @@
 #' @param task mlr task that contains the data set.
 #' @param learner Learner or String that determines the mlr learning algorithm.
 #' @export
-plot.shapley.singleValue = function(row.nr, shap.values = NULL, target = "medv",
-  task = bh.task, learner = "regr.lm") {
+plot.shapley.singleValue = function(row.nr, shap.values = NULL, task = bh.task,
+  model = train("regr.lm", bh.task)) {
 
   if (is.null(shap.values))
     shap.values = shapley(row.nr)
 
-  mod = train(learner, task)
   pred =
-    getPredictionResponse(predict(mod, newdata = getTaskData(task)[row.nr,]))
-  data.mean = mean(getTaskData(bh.task)[,target])
+    getPredictionResponse(predict(model, newdata = getTaskData(task)[row.nr,]))
+  data.mean =
+    mean(getPredictionTruth(predict(model, newdata = getTaskData(task))))
   points = compute.shapley.positions(shap.values, data.mean)
 
   ggplot(points, aes(x = values, y = 0)) +
@@ -46,8 +46,8 @@ plot.shapley.singleValue = function(row.nr, shap.values = NULL, target = "medv",
 #' @param task mlr task that contains the data set.
 #' @param learner Learner or String that determines the mlr learning algorithm.
 #' @export
-plot.shapley.multipleValues = function(row.nr, shap.values = NULL, target = "medv",
-  task = bh.task, learner = "regr.lm") {
+plot.shapley.multipleValues = function(row.nr, shap.values = NULL,
+  task = bh.task, model = train("regr.lm", bh.task)) {
 
   if (is.null(shap.values))
     shap.values = shapley(row.nr)
@@ -56,14 +56,13 @@ plot.shapley.multipleValues = function(row.nr, shap.values = NULL, target = "med
   data = data.frame(matrix(data = 0, nrow = length(row.nr), ncol = length(data.names)))
   names(data) = data.names
 
-  data.mean = mean(getTaskData(task)[, target])
+  data.mean =
+    mean(getPredictionTruth(predict(model, newdata = getTaskData(task))))
   data$response.plus = rowSums(apply(shap.values, 1:2, FUN = function(x) {max(0, x)}))
   data$response.minus = rowSums(apply(shap.values, 1:2, FUN = function(x) {min(0, x)}))
   data$position = row.nr
   data$color = ifelse(data$response.plus < abs(data$response.minus), "red", "green")
 
-  #FIXME: change color acording to what line is below/above
-  #FIXME: add useful legend
   ggplot() +
     geom_line(data = data, aes(x = position, y = data.mean, colour = "data mean")) +
     geom_line(data = data, aes(x = position, y = data.mean + response.plus,
