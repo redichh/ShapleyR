@@ -27,7 +27,7 @@ plot.shapleyFeatures.multiplies = function(row.nr, features = c("crim", "lstat")
   plot.data = melt(data, id.vars = "position")
 
   ggplot(data=plot.data, aes(x = position, y = value, group = variable, color = variable))+
-    geom_line(data)
+    geom_line()
 
 
 }
