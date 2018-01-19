@@ -24,6 +24,7 @@ shapley = function(row.nr, task = bh.task, learner = "regr.lm", model = NA,
   #FIXME: Packages from DESCRIPTION.Imports are not imported correctly...
   #FIXME: add further methods = c("default", "kernel", "exact", "hayvan-dividente"))
   #FIXME: test/implement further task kinds (classification, clustering)
+  #FIXME: add "#' @importFrom mlr train" for methods
   if(class(model) == "WrappedModel") {
     mod = model
   } else {

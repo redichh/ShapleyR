@@ -52,20 +52,26 @@ plot.shapley.multipleValues = function(row.nr, shap.values = NULL, target = "med
   if (is.null(shap.values))
     shap.values = shapley(row.nr)
 
-  data = data.frame(matrix(data = 0, nrow = length(row.nr), ncol = 4))
-  names(data) = c("truth", "response", "position", "color")
-  data$response = rowSums(shap.values) + data$truth
-  data$mean = mean(getTaskData(task)[, target])
+  data.names = c("response.plus", "response.minus", "position", "color")
+  data = data.frame(matrix(data = 0, nrow = length(row.nr), ncol = length(data.names)))
+  names(data) = data.names
+
+  data.mean = mean(getTaskData(task)[, target])
+  data$response.plus = rowSums(apply(shap.values, 1:2, FUN = function(x) {max(0, x)}))
+  data$response.minus = rowSums(apply(shap.values, 1:2, FUN = function(x) {min(0, x)}))
   data$position = row.nr
-  data$color = ifelse(data$truth > data$response, "red", "green")
+  data$color = ifelse(data$response.plus < abs(data$response.minus), "red", "green")
 
   #FIXME: change color acording to what line is below/above
   #FIXME: add useful legend
   ggplot() +
-    geom_ribbon(data = data, aes(x = position, ymax = truth, ymin = response),
-      fill = "blue", alpha = .1) +
-    geom_line(data = data, aes(x = position, y = truth, colour = "expected")) +
-    geom_line(data = data, aes(x = position, y = response, colour = "difference"))
+    geom_line(data = data, aes(x = position, y = data.mean, colour = "data mean")) +
+    geom_line(data = data, aes(x = position, y = data.mean + response.plus,
+      colour = "positive effects")) +
+    geom_line(data = data, aes(x = position, y = data.mean + response.minus,
+      colour = "negative effects")) +
+    geom_ribbon(data = data, aes(x = position, ymax = data.mean,
+      ymin = data.mean + rowSums(shap.values)), fill = "blue", alpha = .2)
 }
 
 #' Calculates the positions of the features influence for the plot.singleValue.
