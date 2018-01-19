@@ -6,9 +6,8 @@
 #' @param shap.values (Optional) A data.frame that contains the shapley values. If
 #'   no shap.values are given the default algorithm is used to calculate the
 #'   shapley values for the given observation.
-#' @param target The name of the dependent variable.
 #' @param task mlr task that contains the data set.
-#' @param learner Learner or String that determines the mlr learning algorithm.
+#' @param model Model for the corresponding task.
 #' @export
 plot.shapley.singleValue = function(row.nr, shap.values = NULL, task = bh.task,
   model = train("regr.lm", bh.task)) {
@@ -42,9 +41,8 @@ plot.shapley.singleValue = function(row.nr, shap.values = NULL, task = bh.task,
 #' @param shap.values (Optional) A data.frame that contains the shapley values. If
 #'   no shap.values are given the default algorithm is used to calculate the
 #'   shapley values for the given observation.
-#' @param target The name of the dependent variable.
 #' @param task mlr task that contains the data set.
-#' @param learner Learner or String that determines the mlr learning algorithm.
+#' @param model Model for the corresponding task.
 #' @export
 plot.shapley.multipleValues = function(row.nr, shap.values = NULL,
   task = bh.task, model = train("regr.lm", bh.task)) {

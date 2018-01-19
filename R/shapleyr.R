@@ -9,7 +9,7 @@
 #'   shapley value for all features is calculated.
 #' @param row.nr Index for the observation of interest.
 #' @param task mlr task that contains the data set.
-#' @param learner Learner or String that determines the mlr learning algorithm.
+#' @param model Model for the corresponding task..
 #' @param iterations Amount of iterations.
 #' @param method Determines how the shapley value is calculated. Possible
 #'   methods are "default" or "kernel".
