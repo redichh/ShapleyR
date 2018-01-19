@@ -10,5 +10,6 @@ LazyData: true
 Imports:
 	mlr,
 	ggplot2,
-	ggrepel
+	ggrepel,
+	reshape2
 RoxygenNote: 6.0.1
