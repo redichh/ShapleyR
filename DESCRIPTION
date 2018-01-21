@@ -11,5 +11,7 @@ Imports:
 	mlr,
 	ggplot2,
 	ggrepel,
-	reshape2
+	reshape2,
+	shiny,
+	shinydashboard
 RoxygenNote: 6.0.1
