@@ -9,9 +9,9 @@ Encoding: UTF-8
 LazyData: true
 Imports:
 	mlr,
+	shiny,
 	ggplot2,
 	ggrepel,
 	reshape2,
-	shiny,
 	shinydashboard
 RoxygenNote: 6.0.1
