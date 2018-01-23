@@ -1,3 +1,8 @@
+require("mlr")
+require("shiny")
+require("shinydashboard")
+
+task = bh.task
 
 ui <- dashboardPage(
   dashboardHeader(title="shapley value"),
@@ -98,7 +103,7 @@ server <- function(input, output) {
     if(is.null(f))
       f = sample(getTaskFeatureNames(task),1)
 
-    plot.shapleyFeatures.multiplies(t,features = f)
+    plot.shapley.multipleFeatures(t,features = f)
 
   })
 

@@ -1,4 +1,3 @@
-
 #' Tests that the shapley algorithm converges.
 #'
 #' @description Tests that the shapley algorithm converges.
