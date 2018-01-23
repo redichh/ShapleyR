@@ -4,20 +4,20 @@
 \alias{shapley}
 \title{Describes the difference between the expected value and the true outcome.}
 \usage{
-shapley(row.nr, task = bh.task, learner = "regr.lm", iterations = 50,
-  method = "default")
+shapley(row.nr, model = train("regr.lm", bh.task), task = bh.task,
+  iterations = 50, method = "default")
 }
 \arguments{
 \item{row.nr}{Index for the observation of interest.}
 
-\item{task}{mlr task that contains the data set.}
+\item{model}{Model for the corresponding task..}
 
-\item{learner}{Learner or String that determines the mlr learning algorithm.}
+\item{task}{mlr task that contains the data set.}
 
 \item{iterations}{Amount of iterations.}
 
 \item{method}{Determines how the shapley value is calculated. Possible
-selections are "default" or "kernel".}
+methods are "default" or "kernel".}
 }
 \value{
 shapley value as a data.frame with col.names and their corresponding

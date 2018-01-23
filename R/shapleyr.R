@@ -9,14 +9,14 @@
 #'   shapley value for all features is calculated.
 #' @param row.nr Index for the observation of interest.
 #' @param task mlr task that contains the data set.
-#' @param learner Learner or String that determines the mlr learning algorithm.
+#' @param model Model for the corresponding task..
 #' @param iterations Amount of iterations.
 #' @param method Determines how the shapley value is calculated. Possible
 #'   methods are "default" or "kernel".
 #' @return shapley value as a data.frame with col.names and their corresponding
 #'   effects.
 #' @export
-shapley = function(row.nr, task = bh.task, learner = "regr.lm", model = NA,
+shapley = function(row.nr, model = train("regr.lm", bh.task), task = bh.task,
   iterations = 50, method = "default") {
 
   #FIXME: add version with unsampled permutation for small feature vectors
@@ -24,11 +24,7 @@ shapley = function(row.nr, task = bh.task, learner = "regr.lm", model = NA,
   #FIXME: Packages from DESCRIPTION.Imports are not imported correctly...
   #FIXME: add further methods = c("default", "kernel", "exact", "hayvan-dividente"))
   #FIXME: test/implement further task kinds (classification, clustering)
-  if(class(model) == "WrappedModel") {
-    mod = model
-  } else {
-    mod = train(learner, task)
-  }
+  #FIXME: add "#' @importFrom mlr train" for methods
 
   x = getTaskData(task)[row.nr,]
   phi = as.data.frame(matrix(data = 0, nrow = nrow(x) * iterations, ncol = getTaskNFeats(task)))
@@ -51,8 +47,8 @@ shapley = function(row.nr, task = bh.task, learner = "regr.lm", model = NA,
       b2[s:(s + nrow(x) - 1), perm] = cbind(x[prec], z[feature], z[succ])
     }
 
-    phi[feature] = getPredictionResponse(predict(mod, newdata=b1)) -
-      getPredictionResponse(predict(mod, newdata = b2))
+    phi[feature] = getPredictionResponse(predict(model, newdata=b1)) -
+      getPredictionResponse(predict(model, newdata = b2))
   }
 
   result = as.data.frame(matrix(data=0, ncol=ncol(phi), nrow=nrow(x)))
