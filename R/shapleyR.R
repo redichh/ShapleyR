@@ -17,7 +17,7 @@
 #'   effects.
 #' @export
 shapley = function(row.nr, model = train("regr.lm", bh.task), task = bh.task,
-                   iterations = 50, method = "default") {
+  iterations = 50, method = "default") {
 
   #FIXME: add version with unsampled permutation for small feature vectors
   #FIXME: assert_numeric(row.nr, nmin = 1)/assert_class(model, "WrappedModel")

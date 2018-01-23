@@ -10,7 +10,7 @@
 #' @param model Model for the corresponding task.
 #' @export
 plot.shapley.singleValue = function(row.nr, shap.values = NULL, task = bh.task,
-                                    model = train("regr.lm", bh.task)) {
+  model = train("regr.lm", bh.task)) {
 
   if (is.null(shap.values))
     shap.values = shapley(row.nr)
@@ -28,9 +28,9 @@ plot.shapley.singleValue = function(row.nr, shap.values = NULL, task = bh.task,
     geom_text(aes(label=names), size = 4, angle = 70) +
     geom_point(aes(x = round(pred, 3), y = 0.1), colour = "black", size = 3) +
     theme(axis.title.y = element_blank(),
-          axis.text.y = element_blank(),
-          axis.ticks.y = element_blank(),
-          legend.position = "none")
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.position = "none")
 }
 
 #' Plots a graph with the expected and observed values.
@@ -45,7 +45,7 @@ plot.shapley.singleValue = function(row.nr, shap.values = NULL, task = bh.task,
 #' @param model Model for the corresponding task.
 #' @export
 plot.shapley.multipleValues = function(row.nr, shap.values = NULL,
-                                       task = bh.task, model = train("regr.lm", bh.task)) {
+  task = bh.task, model = train("regr.lm", bh.task)) {
 
   if (is.null(shap.values))
     shap.values = shapley(row.nr)
@@ -64,11 +64,11 @@ plot.shapley.multipleValues = function(row.nr, shap.values = NULL,
   ggplot() +
     geom_line(data = data, aes(x = position, y = data.mean, colour = "data mean")) +
     geom_line(data = data, aes(x = position, y = data.mean + response.plus,
-                               colour = "positive effects")) +
+      colour = "positive effects")) +
     geom_line(data = data, aes(x = position, y = data.mean + response.minus,
-                               colour = "negative effects")) +
+      colour = "negative effects")) +
     geom_ribbon(data = data, aes(x = position, ymax = data.mean,
-                                 ymin = data.mean + rowSums(shap.values)), fill = "blue", alpha = .2)
+      ymin = data.mean + rowSums(shap.values)), fill = "blue", alpha = .2)
 }
 
 #' Calculates the positions of the features influence for the plot.singleValue.
@@ -90,5 +90,3 @@ compute.shapley.positions = function(points, shift = 0) {
 
   return(result)
 }
-
-

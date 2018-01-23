@@ -9,16 +9,16 @@
 #' @param task mlr task that contains the data set.
 #' @param learner Learner or String that determines the mlr learning algorithm.
 #' @export
-#' @example plot.shapleyFeatures.multiplies(1:200,features = c("crim","zn","indus","chas"))
-plot.shapleyFeatures.multiplies = function(row.nr, features = c("crim", "lstat"), shap.values = NULL, target = "medv",
-  task = bh.task, learner = "regr.lm") {
+plot.shapley.multipleFeatures = function(row.nr, features = c("crim", "lstat"),
+  shap.values = NULL, target = "medv", task = bh.task, learner = "regr.lm") {
+
   if (is.null(shap.values))
     shap.values = shapley(row.nr)
 
   features.values = shap.values[features]
   features.numbers = ncol(features.values)
 
-  data = data.frame(matrix(data = 0, nrow = length(row.nr), ncol = 1+features.numbers))
+  data = data.frame(matrix(data = 0, nrow = length(row.nr), ncol = 1 + features.numbers))
   names(data) = c(names(features.values), "position")
   data[names(features.values)] = features.values
   data$position = row.nr
