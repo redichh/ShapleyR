@@ -1,3 +1,7 @@
+require("mlr")
+require("shiny")
+require("shinydashboard")
+
 task = bh.task
 
 ui <- dashboardPage(
