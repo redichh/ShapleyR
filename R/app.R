@@ -4,109 +4,83 @@ require("shinydashboard")
 
 task = bh.task
 
-ui <- dashboardPage(
+ui = dashboardPage(
   dashboardHeader(title="shapley value"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Dashboard",tabName = "dashboard",icon = icon("dashboard")),
-      menuItem("single Value",tabName = "single",icon=icon("single")),
-      menuItem("multi Value",tabName = "multi",icon=icon("multi")),
-      menuItem("features",tabName = "features",icon=icon("features"))
+      menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
+      menuItem("single Value", tabName = "single", icon = icon("single")),
+      menuItem("multi Value", tabName = "multi", icon = icon("multi")),
+      menuItem("features", tabName = "features", icon = icon("features"))
     )
   ),
   dashboardBody(
-    #Boxes need to be put in a row (or colum)
     tabItems(
-      tabItem(tabName = "dashboard",
-              h2("shaply value"),
-              fluidRow(
-                box(tableOutput('table'),
-                    height = 250,
-                    width = 50),
-                box(
-                  title = "choose the observation rows",
-                  sliderInput("row", "the Range of rows:",
-                              min = 1, max = nrow(getTaskData(task)),
-                              value = c(1,1)),
-                  width = 50
-                )
-              )
+      # shapley value table
+      tabItem(tabName = "dashboard", h2("shaply value"),
+        fluidRow(
+          box(title = "choose the observation rows", width = 50,
+            sliderInput("row", "the Range of rows:", min = 1,
+              max = nrow(getTaskData(task)), value = c(1, 1))
+          ),
+          box(tableOutput('table'), width = 50)
+        )
       ),
-      tabItem(tabName = "single",
-              h2("single tab content"),
-              fluidRow(
-                box(plotOutput("plot1")),
-                box(
-                  title = "choose the observation row",
-                  sliderInput("slider","Row number :",1,nrow(getTaskData(task)),50)
-                )
-              )
+      # single value plot
+      tabItem(tabName = "single", h2("single tab content"),
+        fluidRow(
+          box(plotOutput("plot1")),
+          box(title = "choose the observation row",
+            sliderInput("slider","Row number :",1, nrow(getTaskData(task)),50)
+          )
+        )
       ),
-      tabItem(tabName = "multi",
-              h2("multi tab content"),
-              fluidRow(
-                box(plotOutput("plot2")),
-                box(
-                  title = "choose the observation rows",
-                  sliderInput("range", "the Range of rows:",
-                              min = 1, max = nrow(getTaskData(task)),
-                              value = c(1,50))
-                )
-              )
+      # multiple values plot
+      tabItem( tabName = "multi", h2("multi tab content"),
+        fluidRow(box(
+          plotOutput("plot2")),
+          box( title = "choose the observation rows",
+            sliderInput("range", "the Range of rows:",
+              min = 1, max = nrow(getTaskData(task)), value = c(1,50))
+          )
+        )
       ),
-      tabItem(tabName = "features",
-              h2("features tab content"),
-              fluidRow(
-                box(plotOutput("plot3")),
-                box(
-                  title = "choose the observation rows",
-                  sliderInput("range1", "the Range of rows:",
-                              min = 1, max = nrow(getTaskData(task)),
-                              value = c(1,50)),
-                  selectInput(inputId = "feat",label="choose the observation feature",
-                              getTaskFeatureNames(task),multiple=TRUE,selectize=TRUE)
-                )
-              )
+      # features plot
+      tabItem( tabName = "features", h2("features tab content"),
+        fluidRow(
+          box(plotOutput("plot3")),
+          box( title = "choose the observation rows",
+            sliderInput("range1", "the Range of rows:",
+              min = 1, max = nrow(getTaskData(task)), value = c(1,50)),
+            selectInput(inputId = "feat", label="choose the observation feature",
+              getTaskFeatureNames(task), multiple=TRUE, selectize=TRUE)
+          )
+        )
       )
     )
-
   )
-
 )
 
-server <- function(input, output) {
-  output$table <- renderTable({
-    s = input$row
-    t = s[1]:s[2]
-    shapley(t)
+server = function(input, output) {
+  output$table = renderTable({
+    shapley(input$row[1]:input$row[2])
   })
 
-  output$plot1 <- renderPlot({
-
+  output$plot1 = renderPlot({
     plot.shapley.singleValue(input$slider)
-
-  })
-  output$plot2 <- renderPlot({
-
-    s = input$range
-    t = s[1]:s[2]
-    plot.shapley.multipleValues(t)
-
   })
 
-  output$plot3 <- renderPlot({
-
-    s = input$range1
-    t = s[1]:s[2]
-
-    f = input$feat
-    if(is.null(f))
-      f = sample(getTaskFeatureNames(task),1)
-
-    plot.shapley.multipleFeatures(t,features = f)
-
+  output$plot2 = renderPlot({
+    plot.shapley.multipleValues(input$range[1]:input$range[2])
   })
 
+  output$plot3 = renderPlot({
+    if(is.null(input$feat))
+      input$feat = sample(getTaskFeatureNames(task),1)
+
+    plot.shapley.multipleFeatures(input$range1[1]:input$range1[2],
+      features = input$feat)
+  })
 }
 
 shinyApp(ui, server)
