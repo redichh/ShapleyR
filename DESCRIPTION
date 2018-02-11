@@ -15,5 +15,6 @@ Imports:
 	ggrepel,
 	shiny,
 	reshape2,
-	shinydashboard
+	shinydashboard,
+	checkmate
 RoxygenNote: 6.0.1
