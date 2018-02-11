@@ -5,16 +5,15 @@ Author: Hermann Redich <hredich@googlemail.com>
 Maintainer: Hermann Redich <hredich@googlemail.com>
 Authors@R: person("Hermann", "Redich", email = "hredich@googlemail.com", role = c("aut", "cre"))
 Description: Implementation of the Shapley algorithm and graphics to show the influence of features/shapley values.
-Depends: R (>= 3.4.2)
+Depends: R (>= 3.4.2),
+    checkmate,
+    ggrepel,
+    ggplot2,
+    mlr,
+	  reshape2,
+	  shiny,
+	  shinydashboard
 License: MIT
 Encoding: UTF-8
 LazyData: true
-Imports:
-	mlr,
-	ggplot2,
-	ggrepel,
-	shiny,
-	reshape2,
-	shinydashboard,
-	checkmate
 RoxygenNote: 6.0.1

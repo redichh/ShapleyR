@@ -1,7 +1,3 @@
-require("mlr")
-require("shiny")
-require("shinydashboard")
-
 task = bh.task
 
 ui = dashboardPage(
@@ -60,7 +56,6 @@ ui = dashboardPage(
     )
   )
 )
-
 server = function(input, output) {
   output$table = renderTable({
     shapley(input$row[1]:input$row[2])
