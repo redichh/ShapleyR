@@ -1,4 +1,4 @@
-task = bh.task
+task = iris.task
 
 ui = dashboardPage(
   dashboardHeader(title="shapley value"),
@@ -56,6 +56,7 @@ ui = dashboardPage(
     )
   )
 )
+
 server = function(input, output) {
   output$table = renderTable({
     shapley(input$row[1]:input$row[2])
