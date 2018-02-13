@@ -25,11 +25,7 @@ shapley = function(row.nr, model = train("regr.lm", bh.task), task = bh.task,
   #FIXME: test/implement further task kinds (classification, clustering)
   #FIXME: add "#' @importFrom mlr train" for methods
 
-  assert(
-    assert_list(row.nr),
-    assert_int(row.nr, lower = 1),
-    combine = "or"
-  )
+  assert_int(row.nr, lower = 1)
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
 
