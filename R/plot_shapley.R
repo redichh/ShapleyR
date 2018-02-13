@@ -9,8 +9,8 @@
 #' @param task mlr task that contains the data set.
 #' @param model Model for the corresponding task.
 #' @export
-plot.shapley.singleValue = function(row.nr, shap.values = NULL, task = bh.task,
-  model = train("regr.lm", bh.task)) {
+plot.shapley.singleValue = function(row.nr, shap.values = NULL, task = iris.task,
+  model = train("classif.lda", iris.task)) {
 
   if (is.null(shap.values))
     shap.values = shapley(row.nr)
@@ -45,7 +45,7 @@ plot.shapley.singleValue = function(row.nr, shap.values = NULL, task = bh.task,
 #' @param model Model for the corresponding task.
 #' @export
 plot.shapley.multipleValues = function(row.nr, shap.values = NULL,
-  task = bh.task, model = train("regr.lm", bh.task)) {
+  task = iris.task, model = train("classif.lda", iris.task)) {
 
   if (is.null(shap.values))
     shap.values = shapley(row.nr)

@@ -16,7 +16,7 @@
 #' @return shapley value as a data.frame with col.names and their corresponding
 #'   effects.
 #' @export
-shapley = function(row.nr, model = train("regr.lm", bh.task), task = bh.task,
+shapley = function(row.nr, model = train("classif.lda", iris.task), task = iris.task,
   iterations = 50, method = "default") {
 
   #FIXME: add version with unsampled permutation for small feature vectors
@@ -25,7 +25,7 @@ shapley = function(row.nr, model = train("regr.lm", bh.task), task = bh.task,
   #FIXME: add "#' @importFrom mlr train" for methods
   #FIXME: assert of row.nr fails if a range of rows is chosen in the app
 
-  assert_int(row.nr, lower = 1)
+  #assert_int(row.nr, lower = 1)
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
 
@@ -51,8 +51,8 @@ shapley = function(row.nr, model = train("regr.lm", bh.task), task = bh.task,
       b2[s:(s + nrow(x) - 1), perm] = cbind(x[prec], z[feature], z[succ])
     }
 
-    phi[feature] = getPredictionResponse(predict(model, newdata=b1)) -
-      getPredictionResponse(predict(model, newdata = b2))
+    phi[feature] = as.numeric(getPredictionResponse(predict(model, newdata=b1))) -
+      as.numeric(getPredictionResponse(predict(model, newdata = b2)))
   }
 
   result = as.data.frame(matrix(data=0, ncol=ncol(phi), nrow=nrow(x)))

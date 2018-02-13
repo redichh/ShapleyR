@@ -10,7 +10,7 @@
 #' @param learner Learner or String that determines the mlr learning algorithm.
 #' @export
 plot.shapley.multipleFeatures = function(row.nr, features = c("crim", "lstat"),
-  shap.values = NULL, target = "medv", task = bh.task, learner = "regr.lm") {
+  shap.values = NULL, target = "Species", task = iris.task, learner = "classif.lda") {
 
   if (is.null(shap.values))
     shap.values = shapley(row.nr)
