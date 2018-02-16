@@ -23,9 +23,8 @@ shapley = function(row.nr, model = train("regr.lm", bh.task), task = bh.task,
   #FIXME: add further methods = c("default", "kernel", "exact", "harsanyi-dividends"))
   #FIXME: test/implement further task kinds (classification, clustering)
   #FIXME: add "#' @importFrom mlr train" for methods
-  #FIXME: assert of row.nr fails if a range of rows is chosen in the app
 
-  assert_int(row.nr, lower = 1)
+  assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
 
