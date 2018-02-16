@@ -17,7 +17,7 @@
 #'   effects.
 #' @export
 shapley = function(row.nr, model = train("regr.lm", bh.task), task = bh.task,
-  iterations = 50, method = "default") {
+                   method = "default") {
 
   #FIXME: add version with unsampled permutation for small feature vectors
   #FIXME: add further methods = c("default", "kernel", "exact", "harsanyi-dividends"))
@@ -25,29 +25,29 @@ shapley = function(row.nr, model = train("regr.lm", bh.task), task = bh.task,
   #FIXME: add "#' @importFrom mlr train" for methods
 
   assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
-  assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
 
+  #Choose only first two rows to create a small vector
+  df = getTaskData(task)[1:2,]
 
-  x = getTaskData(task)[row.nr,]
-  phi = as.data.frame(matrix(data = 0, nrow = nrow(x) * iterations, ncol = getTaskNFeats(task)))
+  x = df[row.nr,]
+  phi = as.data.frame(matrix(data = 0, nrow = nrow(x), ncol = getTaskNFeats(task)))
   names(phi) = getTaskFeatureNames(task)
 
   b1 = data.frame(subset(x, select = names(phi)))
-  b1[1:(nrow(x) * iterations),] = NA
+  b1[1:nrow(x),] = NA
   b2 = b1
 
   for(feature in getTaskFeatureNames(task)) {
-    for(i in 1:iterations) {
-      z = getTaskData(task)[sample(getTaskSize(task), nrow(x)),]
-      perm = sample(getTaskFeatureNames(task))
+    for(i in 1:nrow(x)) {
+      z = df[i,]
+      perm = feature
       position = match(feature, perm)
 
-      s = (i - 1) * nrow(x) + 1
       prec = if(position == 1) NULL else perm[1:(position - 1)]
       succ = if(position == length(perm)) NULL else perm[(position + 1):length(perm)]
-      b1[s:(s + nrow(x) - 1), perm] = cbind(x[prec], x[feature], z[succ])
-      b2[s:(s + nrow(x) - 1), perm] = cbind(x[prec], z[feature], z[succ])
+      b1 = cbind(x[prec], x[feature], z[succ])
+      b2 = cbind(x[prec], z[feature], z[succ])
     }
 
     phi[feature] = getPredictionResponse(predict(model, newdata=b1)) -
