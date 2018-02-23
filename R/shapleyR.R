@@ -79,7 +79,7 @@ shapley = function(row.nr, model = train("regr.lm", bh.task), task = bh.task,
 shapley.classif = function(row.nr, model = train("classif.lda", iris.task), task = iris.task,
   iterations = 50, method = "default") {
 
-  assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
+  assert_int(row.nr, lower = 1, upper = nrow(getTaskData(task)))
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
 
@@ -108,15 +108,17 @@ shapley.classif = function(row.nr, model = train("classif.lda", iris.task), task
     }
 
     if(model$learner$type == "classif") {
+      x.class = as.character(x[getTaskDesc(task)$target][,1])
       class.levels = getTaskDesc(task)$class.levels
       phi = phi[1:length(class.levels),]
       row.names(phi) = class.levels
       predict_b1 = getPredictionResponse(predict(model, newdata=b1))
       predict_b2 = getPredictionResponse(predict(model, newdata=b2))
-      for(class.level in class.levels)
-        phi[class.level, feature] = mean(ifelse(predict_b1 == class.level, 1, 0))
-      #for(class.level in class.levels)
-      x.class = as.character(x[getTaskDesc(task)$target][,1])
+      for(class.level in class.levels) {
+        predictions.test = predict_b1 == predict_b2 & predict_b1 == class.level
+        phi[class.level, feature] = mean(ifelse(predictions.test, 1, 0))
+      }
+
       result[feature] = 2 * phi[x.class, feature] - sum(phi[,feature])
     } else {
       phi[feature] = getPredictionResponse(predict(model, newdata=b1)) -
