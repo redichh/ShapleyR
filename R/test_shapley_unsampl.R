@@ -1,18 +1,24 @@
-#######New version number 3
-#No warnings anymore
-#Output as data frame
-#works with every column name of data.input
-#Shapley value calculated by shapley.calc
-#Iterates over all player
-shapley.unsampled = function(data.input = test, target = "value") {
-  #assert()
-  #df is a list without target variable
-  df = data.input[, !(names(data.input) %in% target)]
-  #Change names(df) to letters, so sort() works for all kind of names
-  players = LETTERS[1:length(names(df))]
-  #Find all permutations of players
-  S = combinat::permn(players)
+#######New version number 4
+#add defensive programming
+#add apply instead of for loops
 
+shapley.unsampled = function(data.input = test, target = "value") {
+  ##Assert
+  assert_data_frame(data.input)
+  assert_numeric(data.input[ ,(names(data.input) %in% target)])
+
+  df = data.input[ ,!(names(data.input) %in% target)] #coalations without target variable
+  stopifnot(all(sapply(df, function(X) X == FALSE | X == TRUE))) #Only logical in df
+  if(0 %in% rowSums(df)){
+    assert_data_frame(df, nrows = 2^ncol(df)) #Check expected row number (with/without empty coalation)
+  }
+  else assert_data_frame(df, nrows = 2^ncol(df)-1)
+  stopifnot(identical(df, unique(df))) #Check uniqueness = every coalation once in data
+
+  ##Permutations
+  players = LETTERS[1:ncol(df)] #Change names of columns to letters, so sort() works for any name
+  S = combinat::permn(players) #Find all permutations of players
+  ##Calculate Shapley
   shapley.calc = function(observed, S){
     sh.diff = c()
     for(i in 1:length(S)){
@@ -41,12 +47,13 @@ shapley.unsampled = function(data.input = test, target = "value") {
     }
     return(mean(sh.diff))
   }
-  ##iterate observed player
-  sh.all = as.data.frame(matrix(data = 0, ncol = length(names(df)), nrow = 1))
+
+  ##Create result
+  sh.all = as.data.frame(matrix(data = 0, ncol = ncol(df), nrow = 1))
   names(sh.all) = names(df)
   for (player in players){
     shapley.value = shapley.calc(observed = player, S = S)
-    column.index = grep(pattern = player, x=players) #from letters back to original column names
+    column.index = grep(pattern = player, x = players) #from letters back to original column names
     sh.all[ ,column.index] = shapley.value
   }
   return(sh.all)
