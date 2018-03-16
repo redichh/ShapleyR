@@ -16,7 +16,7 @@
 #' @return shapley value as a data.frame with col.names and their corresponding
 #'   effects.
 #' @export
-shapley = function(row.nr, task = bh.task, model = train("regr.lm", bh.task), iterations = 50) {
+shapley = function(row.nr, task = mtcars.task, model = train(makeLearner("cluster.kmeans", predict.type = "response"), mtcars.task), iterations = 50) {
   assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
@@ -50,7 +50,7 @@ shapley = function(row.nr, task = bh.task, model = train("regr.lm", bh.task), it
 
     for(i in 1:nrow(x)) {
       r.indices = nclasses * (i - 1) + 1:nclasses
-      p.indices = iterations * (i - 1) + 1:iterations
+      p.indices = ifelse(getLearnerPredictType(model$learner) == "response", 1, iterations * (i - 1) + 1:iterations)
       result[r.indices, feature] = computePartialResult(predict_b1, predict_b2, p.indices, getTaskType(task))
     }
   }
@@ -60,7 +60,27 @@ shapley = function(row.nr, task = bh.task, model = train("regr.lm", bh.task), it
 
 getPredictionData = function(data, model, task) {
   result = NA
-  if(getTaskType(task) == "regr") {
+
+  if(getLearnerPredictType(model$learner) == "response" & (getTaskType(task) == "classif" | getTaskType(task) == "cluster")) {
+    task.levels = NA
+    if(getTaskType(task) == "classif") {
+      task.levels = getTaskClassLevels(task)
+    } else {
+      task.levels = seq(1, model$learner$par.vals$centers, by = 1)
+    }
+    response = getPredictionResponse(predict(model, newdata=data))
+    estimated = as.data.frame(matrix(data = 0, nrow = 1, ncol = length(task.levels)))
+    observed = as.data.frame(matrix(data = 0, nrow = nrow(data), ncol = length(task.levels)))
+    names(estimated) = task.levels
+    names(observed) = task.levels
+    for(i in 1:nrow(observed)) {
+      estimated[1, as.character(response[i])] = estimated[1, as.character(response[i])] + (1 / nrow(data))
+      observed[i, as.character(response[i])] = 1
+    }
+    result = observed
+    for(i in 1:nrow(observed))
+      result[i,] = observed[i,] - estimated[1,]
+  } else if(getTaskType(task) == "regr") {
     result = as.data.frame(getPredictionResponse(predict(model, newdata=data)))
   } else if(getTaskType(task) == "classif") {
     result = getPredictionProbabilities(predict(model, newdata=data), getTaskClassLevels(task))
