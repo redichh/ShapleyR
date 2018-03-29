@@ -7,7 +7,7 @@
 #'   function.
 #' @return shapley value as a data.frame with col.names and their corresponding
 #'   effects.
-test.covergence = function(row.nr, iterations = 20, shapley.iterations = 1) {
+test.convergence = function(row.nr, iterations = 10, shapley.iterations = 50) {
   values = rep(0, times = iterations)
   for(i in 1:iterations) {
     values[i] = sum(shapley(row.nr, iterations = shapley.iterations))
@@ -16,9 +16,9 @@ test.covergence = function(row.nr, iterations = 20, shapley.iterations = 1) {
   return(values)
 }
 
-#a = test.covergence(196, iterations = 20)
-#a.cum = cumsum(a) / seq_along(a)
-#a.sub = a
-#ggplot() +
-#  geom_point(aes(x = seq_along(a), y = a)) +
-#  geom_line(aes(x = seq_along(a), y = cumsum(a)/seq_along(a)), color = "red")
+a = test.convergence(196, iterations = 20)
+a.cum = cumsum(a) / seq_along(a)
+a.sub = a
+ggplot() +
+  geom_point(aes(x = seq_along(a), y = a)) +
+  geom_line(aes(x = seq_along(a), y = cumsum(a)/seq_along(a)), color = "red")
