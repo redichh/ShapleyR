@@ -2,28 +2,52 @@
 #'
 #' @description Tests that the shapley algorithm converges.
 #' @param row.nr Index for the observation of interest.
-#' @param iterations Amount of iterations.
-#' @param shapley.iterations Amount of the iterations within the shapley
-#'   function.
-#' @return shapley value as a data.frame with col.names and their corresponding
-#'   effects.
-test.convergence = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task),
-                            iterations = 20, shapley.iterations = 20) {
+#' @param convergence.iterations Amount of calls of the shapley function.
+#' @param iterations Amount of the iterations within the shapley function.
+#' @return shapley values as a data.frame or a plot
+#'
+test.convergence = function(row.nr=2, convergence.iterations = 20, iterations = 20, task = iris.task,
+                            model = train(makeLearner("classif.lda", predict.type = "prob"), iris.task),
+                            return.value = "values") {
 
-  prediction = predict(model, newdata = getTaskData(task)[row.nr,])
-  truth = getPredictionTruth(prediction)
-  response = getPredictionResponse(prediction)
+  assert_number(iterations, convergence.iterations, row.nr)
+  assert_choice(return.value, c("plot", "values"))
+  assert_class(model, "WrappedModel")
 
-  values = rep(0, times = iterations)
-  for(i in 1:iterations) {
-    shap = shapley(row.nr, task, model, iterations = shapley.iterations)
-    values[i] = sum(shap[,3:ncol(shap)]) + truth
+  data = getTaskData(task)[row.nr,]
+  prediction = getPredictionData(data, model, task)
+  prediction.class = names(prediction[BBmisc::getMaxIndex(prediction)])
+
+  values = rep(0, times = convergence.iterations)
+  for(i in 1:convergence.iterations) {
+    if(getTaskType(task) == "classif"){
+      shap = shapley(row.nr, task, model, iterations)
+      values[i] = shap$"_Class"[BBmisc::getMaxIndex(rowSums(shap[,getTaskFeatureNames(task)]))]
+    }
+    else if(getTaskType(task) == "regr"){
+      shap = shapley(row.nr, task, model, iterations)
+      truth = getPredictionTruth(prediction)
+      values[i] = sum(shap[,getTaskFeatureNames(task)]) + truth
+    }
   }
-
-  plot = ggplot() +
-    geom_point(aes(x = seq_along(values), y = values)) +
-    geom_line(aes(x = seq_along(values), y = cumsum(values)/seq_along(values)), color = "red") +
-    geom_line(aes(x = seq(1:iterations), y = rep(response, iterations)), color = "black")
-
-  return(plot)
+  if(return.value == "plot") {
+    plot = ggplot() +
+      geom_point(aes(x = seq_along(values), y = values, colour = "Sum of Shapley values")) +
+      geom_line(aes(x = seq_along(values), y = cumsum(values)/seq_along(values), colour = "Moving Averages")) +
+      geom_line(aes(x = seq(1:convergence.iterations), y = rep(response, convergence.iterations), colour = "Prediction")) +
+      scale_colour_discrete(name = NULL) + labs(x = "Convergence iterations", y = "Shapley value") +
+      theme(legend.position="bottom")
+    return(plot)
+  }
+  if(return.value == "values") {
+    if(getTaskType(task) == "classif"){
+      result = plyr::count(as.data.frame(values))
+      result$values = as.character(result$values)
+      result$values[match(prediction.class, result$values)] = paste0(">>", prediction.class, "<<")
+    }
+    else if(getTaskType(task) == "regr"){
+      result = as.data.frame(values)
+    }
+    return(result)
+  }
 }
