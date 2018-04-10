@@ -67,7 +67,8 @@ shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"),
     feature.names = getTaskFeatureNames(task),
     predict.type = getLearnerPredictType(model$learner),
     prediction.response = getPredictionResponse(predict(model, newdata = getTaskData(task)[row.nr,])),
-    data.mean = mean(getPredictionTruth(predict(model, newdata = getTaskData(task)))),
+    data.mean = if(task.type == "regr")
+      mean(getPredictionTruth(predict(model, newdata = getTaskData(task)))) else NA,
     values = result
   )
 
