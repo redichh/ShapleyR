@@ -1,0 +1,147 @@
+---
+title: "shapley"
+author: "Vignette Author"
+date: '`r Sys.Date()`'
+output:
+  pdf_document: default
+  html_document: default
+vignette: |
+  %\VignetteIndexEntry{shapley} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE,results='hide'}
+library(ggplot2)
+#library(shapleyr)
+#load the packages that we need
+devtools::load_all()
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(collapse = T, comment = "#>")
+```
+
+## R Shapley
+
+The Shapley value is a method that gives a solution to the following problem: A coalition of players play a game, for which they get a payout, but it is not clear how to distribute the payout fairly among the players. The Shapley value solves this problem by trying out different coalitions of players to decide how much each player changes the amount of the payout. 
+What does this have to do with machine learning? In machine learning, the features (=players) work together to get the payout (=predicted value). The Shapley value tells us, how much each feature contributed to the prediction.
+
+
+Properties:
+  * Efficiency.
+  * Symmetry.
+  * Linearity.
+  * Zero player.
+
+------------- -------------- --------------- -----------------
+   v({ }) = 0    v({a}) = 12      v({b}) = 6        v({c}) = 9
+
+v({a,b}) = 24  v({a,c}) = 27   v({b,c}) = 15   v({a,b,c}) = 36
+------------- -------------- --------------- -----------------
+
+For example  feature b:
+
+Permutationen        Beitrag vor b     vor und mit b    Marginaler Beitrag
+-------------       --------------     --------------   -------------------
+        a,b,c       v({a}) = 12         v({a,b})=24              12
+        a,c,b       v({a,c}) = 27       v({a,b,c}) = 36           9
+        b,a,c       v({}) = 0           v({b}) = 6                6
+        b,c,a       v({}) = 0           v({b}) = 6                6
+        c,a,b       v({a,c}) = 27       v({a,b,c}) = 36           9
+        c,b,a       v({c}) = 9          v({b,c}) = 15             6
+-------------       --------------     --------------  --------------------
+** Sh_b({a,b,c}, v ) = 8; analog für Sh_a = 17, Sh_c = 11
+
+# Shapley value
+
+###example1: 
+### solve the regression problem
+```{r}
+#   task = bh.task,      predict.methods = regr.lm
+s1 <-shapley(3, task = bh.task, model = train(makeLearner("regr.lm"), bh.task))
+#Shapley Type
+getShapleyTaskType(s1)
+#Shapley predictionType
+getShapleyPredictionType(s1)
+# shapley Value
+knitr::kable(getShapleyValues(s1))
+```
+###example2:
+### solve the classification problem
+```{r}
+#  task = iris.task,      predict.methods = classif.lda
+s2 <-shapley(3, task = iris.task, model = train(makeLearner("classif.lda"), iris.task))
+#Shapley Type
+getShapleyTaskType(s2)
+#Shapley predictionType
+getShapleyPredictionType(s2)
+# shapley Value
+knitr::kable(getShapleyValues(s2))
+```
+
+###example3:
+### solve the multilabel problem
+```{r}
+#  task = yeast.task,      predict.methods = multilabel.rFerns
+s3 <-shapley(3, task = yeast.task, model = train(makeLearner("multilabel.rFerns"), yeast.task))
+#Shapley Type
+getShapleyTaskType(s3)
+#Shapley predictionType
+getShapleyPredictionType(s3)
+# shapley Value
+knitr::kable(getShapleyValues(s3))
+```
+
+###example4:
+### solve the cluster problem
+```{r}
+#  task = mtcars.task,      predict.methods = cluster.kmeans
+s4 <-shapley(5, task = mtcars.task, model = train(makeLearner("cluster.kmeans"), mtcars.task))
+#Shapley Type
+getShapleyTaskType(s4)
+#Shapley predictionType
+getShapleyPredictionType(s4)
+# shapley Value
+knitr::kable(getShapleyValues(s4))
+```
+
+
+
+
+
+# Including Plots
+
+This method draws a plot for, the observed value and describes the influence of features we interested .
+
+```{r}
+
+#plot.shapley.singleValue(3, shap.values = NULL, task = bh.task,
+ # model = train("regr.lm", bh.task))
+
+```
+
+This method draws a plot for, the observed value and describes the influence of multiple features we interested .
+```{r}
+
+#plot.shapley.multipleFeatures(1:50,features = c("crim","rad","tax","nox"))
+```
+
+```{r, echo = FALSE}
+#knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+# Converges
+Tests that the shapley algorithm converges
+parameters are : 
+    row.nr Index for the observation of interest.
+    iterations Amount of iterations.
+    shapley.iterations Amount of the iterations within the shapley
+    function.
+return shapley value as a data.frame with col.names and their corresponding
+effects.
+
+```{r, echo = TRUE}
+#show the covergence value
+
+#test.covergence(1:50, iterations = 20, shapley.iterations = 1)
+#plot the covergence
+#plot(test.covergence(1:50, iterations = 20, shapley.iterations = 1)) 
+```
+
+

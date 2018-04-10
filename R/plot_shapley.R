@@ -20,12 +20,12 @@ plot.shapley.singleValue = function(shap.values) {
       scale_colour_gradient2(low = "#832424FF", high = "#3A3A98FF", mid = "lightgrey", midpoint = data.mean) +
       geom_line(aes(colour = values), size = 30) +
       geom_text(aes(label = names), check_overlap = TRUE, angle = 70,
-        nudge_y = rep(c(.1, -.1), times = nrow(points))[1:nrow(points)]) +
+                nudge_y = rep(c(.1, -.1), times = nrow(points))[1:nrow(points)]) +
       geom_point(aes(x = round(getShapleyPredictionResponse(shap.values), 3), y = 0.1), colour = "black", size = 3) +
       theme(axis.title.y = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        legend.position = "none")
+            axis.text.y = element_blank(),
+            axis.ticks.y = element_blank(),
+            legend.position = "none")
   )
 }
 
@@ -55,11 +55,11 @@ plot.shapley.multipleValues = function(shap.values, task = bh.task, model = trai
   ggplot() +
     geom_line(data = data, aes(x = position, y = data.mean, colour = "data mean")) +
     geom_line(data = data, aes(x = position, y = data.mean + response.plus,
-      colour = "positive effects")) +
+                               colour = "positive effects")) +
     geom_line(data = data, aes(x = position, y = data.mean + response.minus,
-      colour = "negative effects")) +
+                               colour = "negative effects")) +
     geom_ribbon(data = data, aes(x = position, ymax = data.mean,
-      ymin = data.mean + rowSums(shap.values)), fill = "blue", alpha = .2)
+                                 ymin = data.mean + rowSums(shap.values)), fill = "blue", alpha = .2)
 }
 
 #' Calculates the positions of the features influence for the plot.singleValue.
