@@ -14,10 +14,13 @@
 #' @return shapley value as a data.frame with col.names and their corresponding
 #'   effects.
 #' @export
-shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task), iterations = 100) {
+shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task), iterations = 50) {
   assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
+
+  task.type = getTaskType(task)
+  feature.names = getTaskFeatureNames(task)
 
   x = getTaskData(task)[row.nr,]
   f.indices = nrow(x) * iterations
@@ -61,6 +64,12 @@ shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"),
         computePartialResult(predict_b1, predict_b2, p.indices, task.type)
     }
   }
+
+  result = list(
+    task.type = task.type,
+    predict.type = getLearnerPredictType(model$learner),
+    values = result
+  )
 
   return(result)
 }
