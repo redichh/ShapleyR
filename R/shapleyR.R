@@ -116,7 +116,7 @@ prepareResult = function(x, task, model) {
   result = as.data.frame(matrix(data = 0, ncol = getTaskNFeats(task) + length(custom.names),
     nrow = nrow(x) * length(task.levels)))
   names(result) = c(custom.names, getTaskFeatureNames(task))
-  result$"_Id" = sort(rep(as.numeric(row.names(x)), times = length(task.levels)))
+  result$"_Id" = sort(rep((row.names(x)), times = length(task.levels)))
   result$"_Class" = rep(task.levels, times = nrow(x))
 
   return(result)
