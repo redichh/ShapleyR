@@ -19,9 +19,6 @@ shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"),
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
 
-  task.type = getTaskType(task)
-  feature.names = getTaskFeatureNames(task)
-
   x = getTaskData(task)[row.nr,]
   f.indices = nrow(x) * iterations
   feature.names = getTaskFeatureNames(task)
@@ -67,7 +64,10 @@ shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"),
 
   result = list(
     task.type = task.type,
+    feature.names = getTaskFeatureNames(task),
     predict.type = getLearnerPredictType(model$learner),
+    prediction.response = getPredictionResponse(predict(model, newdata = getTaskData(task)[row.nr,])),
+    data.mean = mean(getPredictionTruth(predict(model, newdata = getTaskData(task)))),
     values = result
   )
 
@@ -116,7 +116,7 @@ prepareResult = function(x, task, model) {
   result = as.data.frame(matrix(data = 0, ncol = getTaskNFeats(task) + length(custom.names),
     nrow = nrow(x) * length(task.levels)))
   names(result) = c(custom.names, getTaskFeatureNames(task))
-  result$"_Id" = sort(rep(as.numeric(row.names(x)), times = length(task.levels)))
+  result$"_Id" = sort(rep(row.names(x), times = length(task.levels)))
   result$"_Class" = rep(task.levels, times = nrow(x))
 
   return(result)
