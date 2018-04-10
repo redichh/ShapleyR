@@ -18,47 +18,43 @@ shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"),
   assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
+  assert_set_equal(getTaskId(task), getTaskId(model))
 
-  x = getTaskData(task)[row.nr,]
-  f.indices = nrow(x) * iterations
   feature.names = getTaskFeatureNames(task)
   task.type = getTaskType(task)
+
+  x = getTaskData(task)[row.nr,]
   b1 = data.frame(subset(x, select = feature.names))
-  b1[1:(f.indices * length(feature.names)),] = NA
+  b1[1:(nrow(x) * iterations),] = NA
   b2 = b1
   result = prepareResult(x, task, model)
 
-  for(f in 1:length(feature.names)) {
-    feature = feature.names[f]
+  for(feature in feature.names) {
     for(i in 1:iterations) {
       z = getTaskData(task)[sample(getTaskSize(task), nrow(x)),]
       perm = sample(feature.names)
       position = match(feature, perm)
 
-      s = (f - 1) * f.indices + (i - 1) * nrow(x) + 1
+      s = (i - 1) * nrow(x) + 1
       prec = if(position == 1) NULL else perm[1:(position - 1)]
       succ = if(position == length(perm)) NULL else perm[(position + 1):length(perm)]
       b1[s:(s + nrow(x) - 1), perm] = cbind(x[prec], x[feature], z[succ])
       b2[s:(s + nrow(x) - 1), perm] = cbind(x[prec], z[feature], z[succ])
     }
-  }
 
-  nclasses = 1
-  if(task.type %in% c("classif", "multilabel"))
-    nclasses = length(getTaskClassLevels(task))
-  if(task.type == "cluster")
-    nclasses = model$learner$par.vals$centers
-  predict_b1 = getPredictionData(b1, model, task)
-  predict_b2 = getPredictionData(b2, model, task)
+    predict_b1 = getPredictionData(b1, model, task)
+    predict_b2 = getPredictionData(b2, model, task)
+    nclasses = 1
+    if(task.type %in% c("classif", "multilabel"))
+      nclasses = length(getTaskClassLevels(task))
+    if(task.type == "cluster")
+      nclasses = model$learner$par.vals$centers
 
-  for(f in 1:length(feature.names)) {
     for(i in 1:nrow(x)) {
       r.indices = nclasses * (i - 1) + 1:nclasses
-      s = (f - 1) * f.indices + (i - 1) * nrow(x) + 1
-      p.indices = ifelse(getLearnerPredictType(model$learner) == "response",
-        s:(s + nrow(x) - 1), (f - 1) * f.indices + iterations * (i - 1) + 1:iterations)
-      result[r.indices, feature.names[f]] =
-        computePartialResult(predict_b1, predict_b2, p.indices, task.type)
+      p.indices = custom.ifelse(getLearnerPredictType(model$learner) == "response",
+        i, iterations * (i - 1) + 1:iterations)
+      result[r.indices, feature] = computePartialResult(predict_b1, predict_b2, p.indices, task.type)
     }
   }
 

@@ -4,7 +4,7 @@
 \alias{compute.shapley.positions}
 \title{Calculates the positions of the features influence for the plot.singleValue.}
 \usage{
-\method{compute}{shapley.positions}(points, shift = 0)
+compute.shapley.positions(points, shift = 0)
 }
 \arguments{
 \item{points}{shapley.values}
