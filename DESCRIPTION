@@ -9,7 +9,10 @@ Depends: R (>= 3.4.2),
     checkmate,
     combinat,
     ggplot2,
-    mlr
+    mlr,
+    shiny,
+    shinydashboard,
+    reshape2
 License: MIT
 Encoding: UTF-8
 LazyData: true
