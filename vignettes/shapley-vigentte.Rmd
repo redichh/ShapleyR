@@ -1,8 +1,9 @@
 ---
 title: "shapley"
 author: "Vignette Author"
-date: '`r Sys.Date()`'
+date: "`r Sys.Date()`"
 output:
+  word_document: default
   pdf_document: default
   html_document: default
 vignette: |
@@ -27,17 +28,16 @@ Properties:
   * Additivity.
   * Zero player.
 
-# Shapley function
+#Shapley function
+The Shapley function gives you as output many informations like task type, feature names, predict type, prediction response, mean of data and the shapley values for every feature. You get the information by using the get functions, which are described below (Getters).
 row.nr = 3 is just an example. You can also choose a range like row.nr = 1:5
-
 ###example1: 
 ### regression task
 ```{r}
 #   task = bh.task,      predict.methods = regr.lm
 s1 <-shapley(row.nr = 3, task = bh.task, model = train(makeLearner("regr.lm"), bh.task))
-# The Shapley function gives you as output many informations like task type, feature names, predict type, prediction response, mean of data and the shapley values for every feature. You get the information by using the get functions, which are described below. Here you can see the whole output:
+# Here you can see the whole output:
 s1
-
 # Here we use getShapleyValues(s1) to show only the shapley values. In the following examples we show only the shapley values. 
 knitr::kable(getShapleyValues(s1))
 ```
@@ -70,11 +70,22 @@ knitr::kable(getShapleyValues(s4))
 ```
 
 ###example5:
-### calculate shapley value without sampling (not for mlr or tasks with a lot features)
+### calculate shapley value without sampling (not for mlr or tasks with many features)
 ```{r}
 ### Unsampled version created for calculating the exact shapley value.
 ### A lot to calculate, because every permutation needs to be calculated
-s5 <-shapley.unsampled()
+#target = the shapley value for the feature you want to observe
+test.data = as.data.frame(rbind(
+  c(1,0,0,12),
+  c(0,1,0,6),
+  c(0,0,1,9),
+  c(1,1,0,24),
+  c(1,0,1,27),
+  c(0,1,1,15),
+  c(0,0,0,0),
+  c(1,1,1,36)))
+names(test.data) = c("Ha", "He", "Da", "value")
+s5 <-shapley.unsampled(data.input = test.data, target = "value")
 
 ```
 
@@ -94,7 +105,7 @@ Same for Sh_a = 17, Sh_c = 11
 
 
 
-# Including Plots
+#Plots
 ###example1:
 ### show the influence of one single value
 ```{r}
@@ -105,50 +116,58 @@ plot.shapley.singleValue(s1)
 ### show the multifeatures influence
 ```{r}
 shap.values = shapley(1:3, task = bh.task, model = train(makeLearner("regr.lm"), bh.task))
-plot.shapley.multipleFeatures(shap.values)
-#plot.shapley.multipleFeatures(1:2,features = c("crim","rad","tax","nox"))
+plot.shapley.multipleFeatures(shap.values, features = c("crim","rad","tax","nox"))
 ```
+###example4:
+### show shapley value for multiple values
 ```{r}
-
-```
-
-```{r, echo = FALSE}
-#knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+plot.shapley.multipleValues(shap.values = shap.values)
 ```
 
 # Convergence
-Tests that the shapley algorithm converges
-parameters are : 
+Tests that the shapley algorithm converges.
+Parameters are: 
     row.nr Index for the observation of interest.
     convergence.iterations Amount of iterations of the shapley function.
     iterations Amount of the iterations within the shapley
     function.
     return.value You can choose between plotting results or getting a data frame ("plot", "values")
-return shapley value as a data.frame with col.names and their corresponding
+Return shapley value as a data.frame with col.names and their corresponding
 effects.
-```{r, echo = TRUE}
+```{r}
 #compares the result of the shapley function with the prediction (from row number)
 #shows how many times a value from the shapley function was chosen.
 test.convergence(row.nr = 2, convergence.iterations = 20, iterations = 20, task = mtcars.task,
                             model = train(makeLearner("cluster.kmeans"), mtcars.task),
                             return.value = "values")
-#The class, which is shown like this <<classname>>, is the class which was predicted by the model (also for clustering). Below the classname is shown how many times this class was chosen by the shapley function, because it has the biggest shapley value.
 
 ```
+The class, which is shown like this <<classname>>, is the class which was predicted by the model (also for clustering). The predicted class is the class chosen by row number. Below the classname is shown how many times this class was chosen by the shapley function, because it has the biggest shapley value.
 
+plot the convergence
+test.convergence(return.value = "plot", ...)
+works only for regression tasks. For other tasks you can get a data frame.
+get a data frame
+test.convergence(... , return.value = "values")
+change amount of iterations in the shapley function
+test.convergence(iterations = 30, ...)
+change amount of calls of shapey function
+test.convergence(convergence.iterations = 100, ...)
+choose observation as reference, for example an observation that you know is normal
+test.convergence(row.nr = 21, ...)
+ 
+#Getters
 ```{r}
+s6 <-shapley(row.nr = 3, task = bh.task, model = train(makeLearner("regr.lm"), bh.task))
 
-#plot the convergence
-#test.convergence(return.value = "plot", ...)
-#get a data frame
-#test.convergence(return.value = "values")
-#change amount of iterations in the shapley function
-#test.convergence(iterations = ...)
-#change amount of calls of shapey function
-#test.convergence(convergence.iterations = ...)
-#choose observation as reference, for example an observation that you know is normal
-#test.convergence(row.nr = ...)
-
+getShapleyValues(s6)
+getShapleyIds(s6)
+getShapleyTaskType(s6)
+getShapleyPredictionType(s6)
+getShapleyPredictionResponse(s6)
+getShapleyFeatureNames(s6)
+getShapleyDataMean(s6)
+getShapleySubsetByResponseClass(s6)
 ```
  
 
