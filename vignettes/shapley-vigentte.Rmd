@@ -63,6 +63,7 @@ getShapleyPredictionType(s1)
 # shapley Value
 knitr::kable(getShapleyValues(s1))
 ```
+
 ###example2:
 ### solve the classification problem
 ```{r}
@@ -93,7 +94,7 @@ knitr::kable(getShapleyValues(s3))
 ### solve the cluster problem
 ```{r}
 #  task = mtcars.task,      predict.methods = cluster.kmeans
-s4 <-shapley(5, task = mtcars.task, model = train(makeLearner("cluster.kmeans"), mtcars.task))
+s4 <-shapley(3, task = mtcars.task, model = train(makeLearner("cluster.kmeans"), mtcars.task))
 #Shapley Type
 getShapleyTaskType(s4)
 #Shapley predictionType
@@ -110,38 +111,65 @@ knitr::kable(getShapleyValues(s4))
 
 This method draws a plot for, the observed value and describes the influence of features we interested .
 
+###example1:
+### show the singleVaule influence
 ```{r}
+s1 <-shapley(3, task = bh.task, model = train(makeLearner("regr.lm"), bh.task))
+plot.shapley.singleValue(s1)
 
-#plot.shapley.singleValue(3, shap.values = NULL, task = bh.task,
- # model = train("regr.lm", bh.task))
 
 ```
 
-This method draws a plot for, the observed value and describes the influence of multiple features we interested .
-```{r}
 
-#plot.shapley.multipleFeatures(1:50,features = c("crim","rad","tax","nox"))
+###example3:
+### show the multifeatures influence
+```{r}
+shap.values = shapley(1:100, task = bh.task, model = train(makeLearner("regr.lm"), bh.task))
+plot.shapley.multipleFeatures(shap.values )
+
+#This method draws a plot for, the observed value and describes the influence of multiple features we interested .
 ```
 
 ```{r, echo = FALSE}
 #knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
-# Converges
+# Convergence
 Tests that the shapley algorithm converges
 parameters are : 
     row.nr Index for the observation of interest.
-    iterations Amount of iterations.
-    shapley.iterations Amount of the iterations within the shapley
+    convergence.iterations Amount of iterations of the shapley function.
+    iterations Amount of the iterations within the shapley
     function.
+    return.value You can choose between plotting results or getting a data frame
 return shapley value as a data.frame with col.names and their corresponding
 effects.
+
+
+```{r}
+
+#plot the convergence
+#test.convergence(return.value = "plot", ...)
+#get a data frame
+#test.convergence(return.value = "values")
+#change amount of iterations in the shapley function
+#test.convergence(iterations = ...)
+#change amount of calls of shapey function
+#test.convergence(convergence.iterations = ...)
+#choose observation as reference, for example an observation that you know is normal
+#test.convergence(row.nr = ...)
+
+```
+ 
 
 ```{r, echo = TRUE}
 #show the covergence value
 
-#test.covergence(1:50, iterations = 20, shapley.iterations = 1)
-#plot the covergence
-#plot(test.covergence(1:50, iterations = 20, shapley.iterations = 1)) 
+test.convergence(row.nr=2, convergence.iterations = 20, iterations = 20, task = mtcars.task,
+                            model = train(makeLearner("cluster.kmeans"), mtcars.task),
+                            return.value = "values")
+#The class, which is shown like this <<classname>>, is the class which was predicted by the model (also for clustering). Below the classname is shown how many times this class was chosen by the shapley function, because it has the biggest shapley value.
+
 ```
+
 
 
