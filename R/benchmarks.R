@@ -7,10 +7,9 @@
 #' @param return.value You can choose between plotting results or getting a data frame
 #' @return shapley values as a data.frame or a plot
 #'
-test.convergence = function(row.nr=2, convergence.iterations = 20, iterations = 20, task = mtcars.task,
+test.convergence = function(row.nr = 2, convergence.iterations = 30, iterations = 20, task = mtcars.task,
   model = train(makeLearner("cluster.kmeans"), mtcars.task), return.value = "values") {
 
-  #learner für predict.type ="prob" nicht funktionsfähig
   assert_number(convergence.iterations)
   assert_number(row.nr) #hier keine vektoren zulassen
   assert_number(iterations)
@@ -23,7 +22,7 @@ test.convergence = function(row.nr=2, convergence.iterations = 20, iterations = 
     prediction.class = names(prediction[match(max(prediction), prediction)])
   }
   if(getTaskType(task) == "cluster"){
-    prediction = predict(model,newdata = data)
+    prediction = predict(model, newdata = data)
     prediction.response = getPredictionResponse(prediction)
   }
 
@@ -45,11 +44,12 @@ test.convergence = function(row.nr=2, convergence.iterations = 20, iterations = 
   else if(getTaskType(task) == "regr"){
     for(i in 1:convergence.iterations){
       shap = shapley(row.nr, task, model, iterations)
+      prediction = predict(model, newdata = data)
       truth = getPredictionTruth(prediction)
       values[i] = sum(shap$values[,getTaskFeatureNames(task)]) + truth
     }
   }
-  
+
   if(return.value == "plot") {
     plot = ggplot() +
       geom_point(aes(x = seq_along(values), y = values, colour = "Sum of Shapley values")) +
