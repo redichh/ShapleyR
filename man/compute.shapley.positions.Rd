@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_shapley.R
 \name{compute.shapley.positions}
 \alias{compute.shapley.positions}
-\title{Calculates the positions of the features influence for the plot.singleValue.}
+\title{Calculates the positions of the features influence for plot.singleValue.}
 \usage{
 compute.shapley.positions(points, shift = 0)
 }
