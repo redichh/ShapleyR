@@ -4,12 +4,10 @@
 \alias{plot.shapley.multipleValues}
 \title{Plots a graph with the expected and observed values.}
 \usage{
-\method{plot}{shapley.multipleValues}(row.nr, shap.values = NULL,
-  task = bh.task, model = train("regr.lm", bh.task))
+\method{plot}{shapley.multipleValues}(shap.values, task = bh.task,
+  model = train("regr.lm", bh.task))
 }
 \arguments{
-\item{row.nr}{Index for the observations of interest.}
-
 \item{shap.values}{(Optional) A data.frame that contains the shapley values. If
 no shap.values are given the default algorithm is used to calculate the
 shapley values for the given observation.}
@@ -17,6 +15,8 @@ shapley values for the given observation.}
 \item{task}{mlr task that contains the data set.}
 
 \item{model}{Model for the corresponding task.}
+
+\item{row.nr}{Index for the observations of interest.}
 }
 \description{
 This method draws a plot for the data.mean, the observed value

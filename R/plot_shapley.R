@@ -9,28 +9,24 @@
 #' @param task mlr task that contains the data set.
 #' @param model Model for the corresponding task.
 #' @export
-plot.shapley.singleValue = function(row.nr, shap.values = NULL, task = bh.task,
-  model = train("regr.lm", bh.task)) {
+plot.shapley.singleValue = function(shap.values) {
+  data.mean = getShapleyDataMean(shap.values)
+  data = getShapleyValues(shap.values)[,getShapleyFeatureNames(shap.values)]
+  points = compute.shapley.positions(data, data.mean)
 
-  if (is.null(shap.values))
-    shap.values = shapley(row.nr)
-
-  pred =
-    getPredictionResponse(predict(model, newdata = getTaskData(task)[row.nr,]))
-  data.mean =
-    mean(getPredictionTruth(predict(model, newdata = getTaskData(task))))
-  points = compute.shapley.positions(shap.values, data.mean)
-
-  ggplot(points, aes(x = values, y = 0)) +
-    geom_line(aes(colour = sort(rnorm(14))), size = 30) +
-    scale_colour_gradient2(low="red", high="blue") +
-    coord_cartesian(ylim = c(-0.4, 0.4)) +
-    geom_text(aes(label=names), size = 4, angle = 70) +
-    geom_point(aes(x = round(pred, 3), y = 0.1), colour = "black", size = 3) +
-    theme(axis.title.y = element_blank(),
-      axis.text.y = element_blank(),
-      axis.ticks.y = element_blank(),
-      legend.position = "none")
+  return(
+    ggplot(points, aes(x = values, y = 0)) +
+      coord_cartesian(ylim = c(-.4, .4)) +
+      scale_colour_gradient2(low = "#832424FF", high = "#3A3A98FF", mid = "lightgrey", midpoint = data.mean) +
+      geom_line(aes(colour = values), size = 30) +
+      geom_text(aes(label = names), check_overlap = TRUE, angle = 70,
+                nudge_y = rep(c(.1, -.1), times = nrow(points))[1:nrow(points)]) +
+      geom_point(aes(x = round(getShapleyPredictionResponse(shap.values), 3), y = 0.1), colour = "black", size = 3) +
+      theme(axis.title.y = element_blank(),
+            axis.text.y = element_blank(),
+            axis.ticks.y = element_blank(),
+            legend.position = "none")
+  )
 }
 
 #' Plots a graph with the expected and observed values.
@@ -44,12 +40,7 @@ plot.shapley.singleValue = function(row.nr, shap.values = NULL, task = bh.task,
 #' @param task mlr task that contains the data set.
 #' @param model Model for the corresponding task.
 #' @export
-plot.shapley.multipleValues = function(row.nr, shap.values = NULL,
-  task = bh.task, model = train("regr.lm", bh.task)) {
-
-  if (is.null(shap.values))
-    shap.values = shapley(row.nr)
-
+plot.shapley.multipleValues = function(shap.values, task = bh.task, model = train("regr.lm", bh.task)) {
   data.names = c("response.plus", "response.minus", "position", "color")
   data = data.frame(matrix(data = 0, nrow = length(row.nr), ncol = length(data.names)))
   names(data) = data.names
@@ -64,11 +55,11 @@ plot.shapley.multipleValues = function(row.nr, shap.values = NULL,
   ggplot() +
     geom_line(data = data, aes(x = position, y = data.mean, colour = "data mean")) +
     geom_line(data = data, aes(x = position, y = data.mean + response.plus,
-      colour = "positive effects")) +
+                               colour = "positive effects")) +
     geom_line(data = data, aes(x = position, y = data.mean + response.minus,
-      colour = "negative effects")) +
+                               colour = "negative effects")) +
     geom_ribbon(data = data, aes(x = position, ymax = data.mean,
-      ymin = data.mean + rowSums(shap.values)), fill = "blue", alpha = .2)
+                                 ymin = data.mean + rowSums(shap.values)), fill = "blue", alpha = .2)
 }
 
 #' Calculates the positions of the features influence for the plot.singleValue.
@@ -83,7 +74,7 @@ compute.shapley.positions = function(points, shift = 0) {
   points.labels = c(names(rev(points.minus)), "0", names(points.plus))
   positions = sort(c(cumsum(t(points.minus)), 0, cumsum(t(points.plus))))
 
-  result = data.frame(round(positions + shift, 3))
+  result = data.frame(positions + shift)
   names(result) = c("values")
   result$names = points.labels
   result$align = ifelse(result$values > shift,"right", "left")

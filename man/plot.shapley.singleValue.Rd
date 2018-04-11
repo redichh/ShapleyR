@@ -4,15 +4,14 @@
 \alias{plot.shapley.singleValue}
 \title{Plots the difference for a single value.}
 \usage{
-\method{plot}{shapley.singleValue}(row.nr, shap.values = NULL,
-  task = bh.task, model = train("regr.lm", bh.task))
+\method{plot}{shapley.singleValue}(shap.values)
 }
 \arguments{
-\item{row.nr}{Index for the observation of interest.}
-
 \item{shap.values}{(Optional) A data.frame that contains the shapley values. If
 no shap.values are given the default algorithm is used to calculate the
 shapley values for the given observation.}
+
+\item{row.nr}{Index for the observation of interest.}
 
 \item{task}{mlr task that contains the data set.}
 
