@@ -11,10 +11,11 @@
 #' @param task mlr task that contains the data set.
 #' @param model Model for the corresponding task..
 #' @param iterations Amount of iterations.
-#' @return shapley value as a data.frame with col.names and their corresponding
-#'   effects.
+#' @return A shapley object as a list containing several information. Among others the
+#' shapley.values are returned as a data.frame with the features as columns and
+#' their corresponding effects.
 #' @export
-shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task), iterations = 50) {
+shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task), iterations = 100) {
   assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
@@ -113,7 +114,10 @@ prepareResult = function(x, task, model) {
   result = as.data.frame(matrix(data = 0, ncol = getTaskNFeats(task) + length(custom.names),
     nrow = nrow(x) * length(task.levels)))
   names(result) = c(custom.names, getTaskFeatureNames(task))
-  result$"_Id" = sort(rep(row.names(x), times = length(task.levels)))
+  for(i in 1:nrow(x)) {
+    s = (i - 1) * length(task.levels) + 1
+    result$"_Id"[s:(s+length(task.levels)-1)] = rep(row.names(x)[i], times = length(task.levels))
+  }
   result$"_Class" = rep(task.levels, times = nrow(x))
 
   return(result)

@@ -8,8 +8,7 @@
 #' @return shapley values as a data.frame or a plot
 #'
 test.convergence = function(row.nr=2, convergence.iterations = 20, iterations = 20, task = mtcars.task,
-                            model = train(makeLearner("cluster.kmeans"), mtcars.task),
-                            return.value = "values") {
+  model = train(makeLearner("cluster.kmeans"), mtcars.task), return.value = "values") {
 
   #learner für predict.type ="prob" nicht funktionsfähig
   assert_number(convergence.iterations)
@@ -50,7 +49,7 @@ test.convergence = function(row.nr=2, convergence.iterations = 20, iterations = 
       values[i] = sum(shap$values[,getTaskFeatureNames(task)]) + truth
     }
   }
-
+  
   if(return.value == "plot") {
     plot = ggplot() +
       geom_point(aes(x = seq_along(values), y = values, colour = "Sum of Shapley values")) +

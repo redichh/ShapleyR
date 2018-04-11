@@ -5,7 +5,7 @@
 \title{Describes the difference between the expected value and the true outcome.}
 \usage{
 shapley(row.nr, task = bh.task, model = train(makeLearner("regr.lm"),
-  bh.task), iterations = 50)
+  bh.task), iterations = 100)
 }
 \arguments{
 \item{row.nr}{Index for the observation of interest.}
