@@ -11,8 +11,9 @@
 #' @param task mlr task that contains the data set.
 #' @param model Model for the corresponding task..
 #' @param iterations Amount of iterations.
-#' @return shapley value as a data.frame with col.names and their corresponding
-#'   effects.
+#' @return A shapley object as a list containing several information. Among others the
+#' shapley.values are returned as a data.frame with the features as columns and
+#' their corresponding effects.
 #' @export
 shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task), iterations = 50) {
   assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
