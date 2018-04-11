@@ -54,7 +54,7 @@ shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"),
     for(i in 1:nrow(x)) {
       r.indices = nclasses * (i - 1) + 1:nclasses
       p.indices = custom.ifelse(getLearnerPredictType(model$learner) == "response",
-        i, iterations * (i - 1) + 1:iterations)
+        seq(i, nrow(x) * iterations, nrow(x)), iterations * (i - 1) + 1:iterations)
       result[r.indices, feature] = computePartialResult(predict_b1, predict_b2, p.indices, task.type)
     }
   }
@@ -79,14 +79,14 @@ getPredictionData = function(data, model, task) {
     task.levels = custom.ifelse(getTaskType(task) == "cluster",
       seq(1, model$learner$par.vals$centers, by = 1), getTaskClassLevels(task))
     response = getPredictionResponse(predict(model, newdata=data))
-    estimated = as.data.frame(matrix(data = 0, nrow = 1, ncol = length(task.levels)))
+    estimated = as.data.frame(matrix(data = 1, nrow = 1, ncol = length(task.levels)))
     observed = as.data.frame(matrix(data = 0, nrow = nrow(data), ncol = length(task.levels)))
     names(estimated) = task.levels
     names(observed) = task.levels
     for(i in 1:nrow(observed)) {
       col.indices = custom.ifelse(getTaskType(task) == "multilabel",
         colnames(response)[response[i,]], as.character(response[i]))
-      estimated[1, col.indices] = estimated[1, col.indices] + (1 / nrow(data))
+      estimated[1, col.indices] = estimated[1, col.indices] - (1 / nrow(data))
       observed[i, col.indices] = 1
     }
     result = observed
