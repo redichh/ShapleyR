@@ -7,8 +7,8 @@
 #' @param return.value You can choose between plotting results or getting a data frame
 #' @return shapley values as a data.frame or a plot
 #'
-test.convergence = function(row.nr = 2, convergence.iterations = 30, iterations = 20, task = mtcars.task,
-  model = train(makeLearner("cluster.kmeans"), mtcars.task), return.value = "values") {
+test.convergence = function(row.nr = 2, convergence.iterations = 50, iterations = 20, task = bh.task,
+  model = train(makeLearner("regr.lm"), bh.task), return.value = "plot") {
 
   assert_number(convergence.iterations)
   assert_number(row.nr) #hier keine vektoren zulassen
@@ -45,17 +45,19 @@ test.convergence = function(row.nr = 2, convergence.iterations = 30, iterations 
     for(i in 1:convergence.iterations){
       shap = shapley(row.nr, task, model, iterations)
       prediction = predict(model, newdata = data)
+      response = getPredictionResponse(prediction)
       truth = getPredictionTruth(prediction)
       values[i] = sum(shap$values[,getTaskFeatureNames(task)]) + truth
     }
   }
 
-  if(return.value == "plot") {
+  if(getTaskType(task) == "regr" && return.value == "plot") {
     plot = ggplot() +
-      geom_point(aes(x = seq_along(values), y = values, colour = "Sum of Shapley values")) +
-      geom_line(aes(x = seq_along(values), y = cumsum(values)/seq_along(values), colour = "Moving Averages")) +
-      geom_line(aes(x = seq(1:convergence.iterations), y = rep(response, convergence.iterations), colour = "Prediction")) +
-      scale_colour_discrete(name = NULL) + labs(x = "Convergence iterations", y = "Shapley value") +
+      geom_point(aes(x = seq_along(values), y = values, colour = "Sum of shapley values")) +
+      geom_line(aes(x = seq_along(values), y = cumsum(values)/seq_along(values), colour = "Moving Average")) +
+      geom_line(aes(x = seq(1:convergence.iterations), y = rep(response, convergence.iterations), colour = "Response")) +
+      scale_colour_discrete(name = NULL) +
+      labs(x = "Convergence iterations", y = "Shapley value") +
       theme(legend.position="bottom")
     return(plot)
   }
