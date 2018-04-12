@@ -27,7 +27,7 @@ ui = dashboardPage(
         fluidRow(
           box(plotOutput("plot1")),
           box(title = "choose the observation row",
-            sliderInput("slider","Row number :",1, nrow(getTaskData(task)),50)
+            sliderInput("slider", "Row number :", 1, nrow(getTaskData(task)), 50)
           )
         )
       ),
@@ -58,22 +58,22 @@ ui = dashboardPage(
 )
 server = function(input, output) {
   output$table = renderTable({
-    shapley(input$row[1]:input$row[2])
+    getShapleyValues(shapley(input$row[1]:input$row[2]))
   })
 
   output$plot1 = renderPlot({
-    plot.shapley.singleValue(input$slider)
+    plot.shapley.singleValue(shapley(input$slider))
   })
 
   output$plot2 = renderPlot({
-    plot.shapley.multipleValues(input$range[1]:input$range[2])
+    plot.shapley.multipleValues(shapley(input$range[1]:input$range[2]))
   })
 
   output$plot3 = renderPlot({
     if(is.null(input$feat))
-      input$feat = sample(getTaskFeatureNames(task),1)
+      input$feat = sample(getTaskFeatureNames(task), 1)
 
-    plot.shapley.multipleFeatures(input$range1[1]:input$range1[2],
+    plot.shapley.multipleFeatures(shapley(input$range1[1]:input$range1[2]),
       features = input$feat)
   })
 }

@@ -8,7 +8,7 @@
 #' @param return.value You can choose between plotting results or getting a data frame
 #' @return shapley values as a data.frame or a plot
 #'
-test.convergence = function(row.nr=2, convergence.iterations = 100, iterations = 1, task = bh.task,
+convergence.shapley = function(row.nr=2, convergence.iterations = 100, iterations = 1, task = bh.task,
   model = train(makeLearner("regr.lm"), bh.task), return.value = "plot") {
 
   assert_number(convergence.iterations)
@@ -58,7 +58,7 @@ test.convergence = function(row.nr=2, convergence.iterations = 100, iterations =
       scale_colour_discrete(name = NULL) +
       labs(x = "Convergence iterations", y = "Shapley value") +
       theme(legend.position="bottom")
-    
+
     return(plot)
   }
   if(return.value == "values") {
@@ -77,7 +77,7 @@ test.convergence = function(row.nr=2, convergence.iterations = 100, iterations =
     else if(getTaskType(task) == "regr"){
       result = as.data.frame(values)
     }
-      
+
     return(result)
   }
 }
