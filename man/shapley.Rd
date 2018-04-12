@@ -17,8 +17,9 @@ shapley(row.nr, task = bh.task, model = train(makeLearner("regr.lm"),
 \item{iterations}{Amount of iterations.}
 }
 \value{
-shapley value as a data.frame with col.names and their corresponding
-  effects.
+A shapley object as a list containing several information. Among others the
+shapley.values are returned as a data.frame with the features as columns and
+their corresponding effects.
 }
 \description{
 Takes an observation, the corresponding dataset where x is from
