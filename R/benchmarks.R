@@ -1,16 +1,16 @@
 #' Tests that the shapley algorithm converges.
 #'
-#' @description Tests that the shapley algorithm converges.
+#' @description Tests that the sum of values from the shapley algorithm converges againts the
+#'   difference of data.mean and the prediction for the given observation.
 #' @param row.nr Index for the observation of interest.
 #' @param convergence.iterations Amount of calls of the shapley function.
 #' @param iterations Amount of the iterations within the shapley function.
 #' @param return.value You can choose between plotting results or getting a data frame
 #' @return shapley values as a data.frame or a plot
 #'
-test.convergence = function(row.nr=2, convergence.iterations = 20, iterations = 20, task = mtcars.task,
-  model = train(makeLearner("cluster.kmeans"), mtcars.task), return.value = "values") {
+test.convergence = function(row.nr=2, convergence.iterations = 100, iterations = 1, task = bh.task,
+  model = train(makeLearner("regr.lm"), bh.task), return.value = "plot") {
 
-  #learner für predict.type ="prob" nicht funktionsfähig
   assert_number(convergence.iterations)
   assert_number(row.nr) #hier keine vektoren zulassen
   assert_number(iterations)
@@ -34,27 +34,26 @@ test.convergence = function(row.nr=2, convergence.iterations = 20, iterations = 
       shap.sum = rowSums(shap$values[,getTaskFeatureNames(task)])
       values[i] = shap$values$"_Class"[match(min(shap.sum), shap.sum)]
     }
-  }
-  else if(getTaskType(task) == "classif"){
+  } else if(getTaskType(task) == "classif"){
     for(i in 1:convergence.iterations){
       shap = shapley(row.nr, task, model, iterations)
       shap.sum = rowSums(shap$values[,getTaskFeatureNames(task)])
       values[i] = shap$values$"_Class"[match(max(shap.sum), shap.sum)]
     }
-  }
-  else if(getTaskType(task) == "regr"){
+  } else if(getTaskType(task) == "regr"){
     for(i in 1:convergence.iterations){
       shap = shapley(row.nr, task, model, iterations)
-      truth = getPredictionTruth(prediction)
-      values[i] = sum(shap$values[,getTaskFeatureNames(task)]) + truth
+      prediction = predict(model, newdata = data)
+      data.mean = mean(getTaskData(task)[, getTaskTargetNames(task)])
+      values[i] = sum(shap$values[,getTaskFeatureNames(task)]) + data.mean
     }
   }
-  
+
   if(return.value == "plot") {
     plot = ggplot() +
       geom_point(aes(x = seq_along(values), y = values, colour = "Sum of Shapley values")) +
-      geom_line(aes(x = seq_along(values), y = cumsum(values)/seq_along(values), colour = "Moving Averages")) +
-      geom_line(aes(x = seq(1:convergence.iterations), y = rep(response, convergence.iterations), colour = "Prediction")) +
+      geom_line(aes(x = seq_along(values), y = cumsum(values)/seq_along(values), colour = "Moving Average")) +
+      geom_line(aes(x = seq(1:convergence.iterations), y = rep(getPredictionResponse(prediction), convergence.iterations), colour = "Prediction")) +
       scale_colour_discrete(name = NULL) + labs(x = "Convergence iterations", y = "Shapley value") +
       theme(legend.position="bottom")
     return(plot)
