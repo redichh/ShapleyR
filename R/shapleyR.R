@@ -15,7 +15,7 @@
 #' shapley.values are returned as a data.frame with the features as columns and
 #' their corresponding effects.
 #' @export
-shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task), iterations = 100) {
+shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task), iterations = 30) {
   assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
