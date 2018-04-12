@@ -23,7 +23,7 @@ test.convergence = function(row.nr=2, convergence.iterations = 100, iterations =
     prediction.class = names(prediction[match(max(prediction), prediction)])
   }
   if(getTaskType(task) == "cluster"){
-    prediction = predict(model,newdata = data)
+    prediction = predict(model, newdata = data)
     prediction.response = getPredictionResponse(prediction)
   }
 
@@ -44,18 +44,21 @@ test.convergence = function(row.nr=2, convergence.iterations = 100, iterations =
     for(i in 1:convergence.iterations){
       shap = shapley(row.nr, task, model, iterations)
       prediction = predict(model, newdata = data)
+      response = getPredictionResponse(prediction)
       data.mean = mean(getTaskData(task)[, getTaskTargetNames(task)])
       values[i] = sum(shap$values[,getTaskFeatureNames(task)]) + data.mean
     }
   }
 
-  if(return.value == "plot") {
+  if(getTaskType(task) == "regr" && return.value == "plot") {
     plot = ggplot() +
-      geom_point(aes(x = seq_along(values), y = values, colour = "Sum of Shapley values")) +
+      geom_point(aes(x = seq_along(values), y = values, colour = "Sum of shapley values")) +
       geom_line(aes(x = seq_along(values), y = cumsum(values)/seq_along(values), colour = "Moving Average")) +
-      geom_line(aes(x = seq(1:convergence.iterations), y = rep(getPredictionResponse(prediction), convergence.iterations), colour = "Prediction")) +
-      scale_colour_discrete(name = NULL) + labs(x = "Convergence iterations", y = "Shapley value") +
+      geom_line(aes(x = seq(1:convergence.iterations), y = rep(response, convergence.iterations), colour = "Response")) +
+      scale_colour_discrete(name = NULL) +
+      labs(x = "Convergence iterations", y = "Shapley value") +
       theme(legend.position="bottom")
+    
     return(plot)
   }
   if(return.value == "values") {
@@ -74,6 +77,7 @@ test.convergence = function(row.nr=2, convergence.iterations = 100, iterations =
     else if(getTaskType(task) == "regr"){
       result = as.data.frame(values)
     }
+      
     return(result)
   }
 }

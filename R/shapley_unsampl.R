@@ -20,7 +20,7 @@ shapley.unsampled = function(data.input = test, target = "value") {
 
   ##Permutations
   players = paste0("V", seq(1,ncol(df))) #Change names of columns to letters, so sort() works for any name
-  S = combinat::permn(players) #Find all permutations of players
+  S = permn(players) #Find all permutations of players
   ##Calculate Shapley
   shapley.calc = function(observed, S){
     sh.diff = c()
