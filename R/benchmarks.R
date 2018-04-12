@@ -1,13 +1,14 @@
 #' Tests that the shapley algorithm converges.
 #'
-#' @description Tests that the shapley algorithm converges.
+#' @description Tests that the sum of values from the shapley algorithm converges againts the
+#'   difference of data.mean and the prediction for the given observation.
 #' @param row.nr Index for the observation of interest.
 #' @param convergence.iterations Amount of calls of the shapley function.
 #' @param iterations Amount of the iterations within the shapley function.
 #' @param return.value You can choose between plotting results or getting a data frame
 #' @return shapley values as a data.frame or a plot
 #'
-test.convergence = function(row.nr = 2, convergence.iterations = 50, iterations = 20, task = bh.task,
+test.convergence = function(row.nr=2, convergence.iterations = 100, iterations = 1, task = bh.task,
   model = train(makeLearner("regr.lm"), bh.task), return.value = "plot") {
 
   assert_number(convergence.iterations)
@@ -33,21 +34,19 @@ test.convergence = function(row.nr = 2, convergence.iterations = 50, iterations 
       shap.sum = rowSums(shap$values[,getTaskFeatureNames(task)])
       values[i] = shap$values$"_Class"[match(min(shap.sum), shap.sum)]
     }
-  }
-  else if(getTaskType(task) == "classif"){
+  } else if(getTaskType(task) == "classif"){
     for(i in 1:convergence.iterations){
       shap = shapley(row.nr, task, model, iterations)
       shap.sum = rowSums(shap$values[,getTaskFeatureNames(task)])
       values[i] = shap$values$"_Class"[match(max(shap.sum), shap.sum)]
     }
-  }
-  else if(getTaskType(task) == "regr"){
+  } else if(getTaskType(task) == "regr"){
     for(i in 1:convergence.iterations){
       shap = shapley(row.nr, task, model, iterations)
       prediction = predict(model, newdata = data)
       response = getPredictionResponse(prediction)
-      truth = getPredictionTruth(prediction)
-      values[i] = sum(shap$values[,getTaskFeatureNames(task)]) + truth
+      data.mean = mean(getTaskData(task)[, getTaskTargetNames(task)])
+      values[i] = sum(shap$values[,getTaskFeatureNames(task)]) + data.mean
     }
   }
 
@@ -59,6 +58,7 @@ test.convergence = function(row.nr = 2, convergence.iterations = 50, iterations 
       scale_colour_discrete(name = NULL) +
       labs(x = "Convergence iterations", y = "Shapley value") +
       theme(legend.position="bottom")
+    
     return(plot)
   }
   if(return.value == "values") {
@@ -77,6 +77,7 @@ test.convergence = function(row.nr = 2, convergence.iterations = 50, iterations 
     else if(getTaskType(task) == "regr"){
       result = as.data.frame(values)
     }
+      
     return(result)
   }
 }

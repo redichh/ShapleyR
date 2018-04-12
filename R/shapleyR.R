@@ -26,35 +26,40 @@ shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"),
 
   x = getTaskData(task)[row.nr,]
   b1 = data.frame(subset(x, select = feature.names))
-  b1[1:(nrow(x) * iterations),] = NA
+  b1[1:(nrow(x) * iterations * length(feature.names)),] = NA
   b2 = b1
   result = prepareResult(x, task, model)
 
-  for(feature in feature.names) {
+  for(f in 1:length(feature.names)) {
+    feature = feature.names[f]
     for(i in 1:iterations) {
       z = getTaskData(task)[sample(getTaskSize(task), nrow(x)),]
       perm = sample(feature.names)
       position = match(feature, perm)
 
-      s = (i - 1) * nrow(x) + 1
+      s = (f-1) * nrow(x)*iterations + (i-1) * nrow(x) + 1
       prec = if(position == 1) NULL else perm[1:(position - 1)]
       succ = if(position == length(perm)) NULL else perm[(position + 1):length(perm)]
       b1[s:(s + nrow(x) - 1), perm] = cbind(x[prec], x[feature], z[succ])
       b2[s:(s + nrow(x) - 1), perm] = cbind(x[prec], z[feature], z[succ])
     }
+  }
 
-    predict_b1 = getPredictionData(b1, model, task)
-    predict_b2 = getPredictionData(b2, model, task)
-    nclasses = 1
-    if(task.type %in% c("classif", "multilabel"))
-      nclasses = length(getTaskClassLevels(task))
-    if(task.type == "cluster")
-      nclasses = model$learner$par.vals$centers
+  predict_b1 = getPredictionData(b1, model, task)
+  predict_b2 = getPredictionData(b2, model, task)
+  nclasses = 1
+  if(task.type %in% c("classif", "multilabel"))
+    nclasses = length(getTaskClassLevels(task))
+  if(task.type == "cluster")
+    nclasses = model$learner$par.vals$centers
 
+  for(f in 1:length(feature.names)) {
+    feature = feature.names[f]
     for(i in 1:nrow(x)) {
       r.indices = nclasses * (i - 1) + 1:nclasses
       p.indices = custom.ifelse(getLearnerPredictType(model$learner) == "response",
-        i, iterations * (i - 1) + 1:iterations)
+        seq((f-1) * nrow(x) * iterations + i, f * nrow(x) * iterations, nrow(x)),
+        iterations * (i-1) + 1:iterations)
       result[r.indices, feature] = computePartialResult(predict_b1, predict_b2, p.indices, task.type)
     }
   }
@@ -79,14 +84,14 @@ getPredictionData = function(data, model, task) {
     task.levels = custom.ifelse(getTaskType(task) == "cluster",
       seq(1, model$learner$par.vals$centers, by = 1), getTaskClassLevels(task))
     response = getPredictionResponse(predict(model, newdata=data))
-    estimated = as.data.frame(matrix(data = 0, nrow = 1, ncol = length(task.levels)))
+    estimated = as.data.frame(matrix(data = 1, nrow = 1, ncol = length(task.levels)))
     observed = as.data.frame(matrix(data = 0, nrow = nrow(data), ncol = length(task.levels)))
     names(estimated) = task.levels
     names(observed) = task.levels
     for(i in 1:nrow(observed)) {
       col.indices = custom.ifelse(getTaskType(task) == "multilabel",
         colnames(response)[response[i,]], as.character(response[i]))
-      estimated[1, col.indices] = estimated[1, col.indices] + (1 / nrow(data))
+      estimated[1, col.indices] = estimated[1, col.indices] - (1 / nrow(data))
       observed[i, col.indices] = 1
     }
     result = observed
