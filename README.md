@@ -18,7 +18,7 @@ The Dataset looks as following:
 
 ```
 > head(getTaskData(bh.task))
-crim zn indus chas   nox    rm  age    dis rad tax ptratio      b lstat medv
+crim    zn indus chas   nox    rm  age    dis rad tax ptratio      b lstat medv
 0.00632 18  2.31    0 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98 24.0
 0.02731  0  7.07    0 0.469 6.421 78.9 4.9671   2 242    17.8 396.90  9.14 21.6
 0.02729  0  7.07    0 0.469 7.185 61.1 4.9671   2 242    17.8 392.83  4.03 34.7
@@ -66,8 +66,8 @@ And this is the approximated difference between the previously calculated `predi
 We see that this is not the case. But increasing the amount of iterations should lead to better results:
 
 ```
-> shap.values.2 = getShapleyValues(shapley(1:6, task = bh.task, model = train("regr.lm", bh.task)), iterations = 200)
-> approximation.2 = rowSums(shap.values[,getTaskFeatureNames(bh.task)])
+> shap.values.2 = getShapleyValues(shapley(1:6, task = bh.task, model = train("regr.lm", bh.task), iterations = 200))
+> approximation.2 = rowSums(shap.values.2[,getTaskFeatureNames(bh.task)])
 > prediction - data.mean - approximation.2
 [1] -0.1209629  0.7367561 -0.3352096 -0.1327698 -0.1692821 -0.1395219
 ```
