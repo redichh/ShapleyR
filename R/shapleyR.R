@@ -15,7 +15,7 @@
 #' shapley.values are returned as a data.frame with the features as columns and
 #' their corresponding effects.
 #' @export
-shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task), iterations = 100) {
+shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task), iterations = 30) {
   assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")
@@ -69,8 +69,7 @@ shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"),
     feature.names = getTaskFeatureNames(task),
     predict.type = getLearnerPredictType(model$learner),
     prediction.response = getPredictionResponse(predict(model, newdata = getTaskData(task)[row.nr,])),
-    data.mean = if(task.type == "regr")
-      mean(getPredictionTruth(predict(model, newdata = getTaskData(task)))) else NA,
+    data.mean = computeDataMean(task, model),
     values = result
   )
 
@@ -84,19 +83,10 @@ getPredictionData = function(data, model, task) {
     task.levels = custom.ifelse(getTaskType(task) == "cluster",
       seq(1, model$learner$par.vals$centers, by = 1), getTaskClassLevels(task))
     response = getPredictionResponse(predict(model, newdata=data))
-    estimated = as.data.frame(matrix(data = 1, nrow = 1, ncol = length(task.levels)))
-    observed = as.data.frame(matrix(data = 0, nrow = nrow(data), ncol = length(task.levels)))
-    names(estimated) = task.levels
-    names(observed) = task.levels
-    for(i in 1:nrow(observed)) {
-      col.indices = custom.ifelse(getTaskType(task) == "multilabel",
-        colnames(response)[response[i,]], as.character(response[i]))
-      estimated[1, col.indices] = estimated[1, col.indices] - (1 / nrow(data))
-      observed[i, col.indices] = 1
-    }
-    result = observed
-    for(i in 1:nrow(observed))
-      result[i,] = observed[i,] - estimated[1,]
+    result = as.data.frame(matrix(data = 0, nrow = nrow(data), ncol = length(task.levels)))
+    names(result) = task.levels
+    for(i in 1:nrow(result))
+      result[i, as.character(response[i])] = 1
   } else if(getTaskType(task) == "regr") {
     result = as.data.frame(getPredictionResponse(predict(model, newdata=data)))
   } else if(getTaskType(task) == "classif") {
@@ -134,6 +124,20 @@ computePartialResult = function(predict_a, predict_b, indices, task_type) {
     result = round(mean(result), 3)
   else
     result = round(colMeans(result), 3)
+
+  return(result)
+}
+
+computeDataMean = function(task, model) {
+  result = NA
+  if(getTaskType(task) == "regr") {
+    result = mean(getPredictionTruth(predict(model, newdata = getTaskData(task))))
+  } else {
+    tab = as.data.frame(table(getPredictionResponse(predict(model, newdata = getTaskData(task)))))
+    result = tab[,2]
+    names(result) = tab[,1]
+    result = result / sum(result)
+  }
 
   return(result)
 }
