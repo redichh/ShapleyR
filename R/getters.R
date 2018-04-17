@@ -1,3 +1,18 @@
+.onAttach <- function(libname, pkgname) {
+  packageStartupMessage("Welcome to the ShapleyR package!")
+}
+#' Getting informations from the result of the shapley function.
+#' @description You get the information from the shapley function by using the get-functions.
+#' @param getShapleyValues get shapley values
+#' @param getShapleyIds get Id from task
+#' @param getShapleyTaskType get task type
+#' @param getShapleyPredictionType get prediction type of the model
+#' @param getShapleyPredictionResponse get prediction response of the model
+#' @param getShapleyFeatureNames get feature names
+#' @param getShapleyDataMean get mean of data set
+#' @param getShapleySubsetByResponseClass ????
+#' @export
+
 getShapleyValues = function(shapley.list, subset = NULL) {
   result = shapley.list$values
   if(!is.null(subset) & is.numeric(subset))

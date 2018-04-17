@@ -1,19 +1,33 @@
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("Welcome to the ShapleyR package!")
 }
-
 #' Describes the difference between the expected value and the true outcome.
 #'
-#' @description Takes an observation, the corresponding dataset where x is from
-#'   and the algorithm that was applied to the dataset. With this input the
-#'   shapley value for all features is calculated.
-#' @param row.nr Index for the observation of interest.
-#' @param task mlr task that contains the data set.
-#' @param model Model for the corresponding task..
-#' @param iterations Amount of iterations.
+#' @description Calculates the approximated shapley value for every feature for a chosen observation (row.nr).
+#' Supported tasks are reggression, multilabeling, clustering and classification tasks.
+#' It is also possible to calculate the exact shapley value (not for mlr).
+#' You can plot the results with the shiny app (not for multilabel).
+#' The Shapley function gives you as output many informations like task type, feature names,
+#' predict type, prediction response, mean of data and the shapley values for every feature.
+#' You get the information by using the get-functions, which are described below (Getters).
+#' For further informations and examples check out our vignette.
+#' The shapley algorithm is from this paper (Algorithm 1):
+#' Erik Štrumbelj and Igor Kononenko. 2014. Explaining prediction models and individual predictions
+#' with feature contributions. Knowl. Inf. Syst. 41, 3 (December 2014), 647-665
+#' @param row.nr Index for the observation of interest. It is possible to choose a range of rows.
+#' Input has to be a numeric.
+#' @param task Machine leraning task
+#' @param model Model for the corresponding task. Input has to be a wrapped model.
+#' @param iterations Amount of iterations within the shapley function. Input has to be a numeric.
 #' @return A shapley object as a list containing several information. Among others the
 #' shapley.values are returned as a data.frame with the features as columns and
 #' their corresponding effects.
+#' @related_packages related packages and methods which could be usefull:
+#' 1. https://github.com/slundberg/shap/ (Shapley Value written in Python)
+#' 2. https://github.com/christophM/iml (iml: interpretable machine learning R package)
+#' 3. live (R package)
+#' 4. breakDown (R package)
+#' 5. getFeatureImportance in mlr (R package)
 #' @export
 shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task), iterations = 30) {
   assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
