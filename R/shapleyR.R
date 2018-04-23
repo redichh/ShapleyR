@@ -22,14 +22,8 @@
 #' @return A shapley object as a list containing several information. Among others the
 #' shapley.values are returned as a data.frame with the features as columns and
 #' their corresponding effects.
-#' @related_packages related packages and methods which could be usefull:
-#' 1. https://github.com/slundberg/shap/ (Shapley Value written in Python)
-#' 2. https://github.com/christophM/iml (iml: interpretable machine learning R package)
-#' 3. live (R package)
-#' 4. breakDown (R package)
-#' 5. getFeatureImportance in mlr (R package)
 #' @export
-shapley = function(row.nr, task = bh.task, model = train(makeLearner("regr.lm"), bh.task), iterations = 30) {
+shapley = function(row.nr, task, model, iterations = 30) {
   assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
   assert_int(iterations, lower = 1)
   assert_class(model, "WrappedModel")

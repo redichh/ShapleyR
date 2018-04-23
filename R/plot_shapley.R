@@ -58,9 +58,8 @@ plot.shapley.multipleValues = function(shap.values) {
 #'
 #' @description Orders the values by their sign and value, shifts them and returns
 #'   them as a vector.
-#' @param points shapley.values. You can get those with getShapleyValues(shapley())
+#' @param points A vector of shapley.values for a single row
 #' @param shift data.mean
-#' @export
 compute.shapley.positions = function(points, shift = 0) {
   points.minus = sort(points[which(points < 0)])
   points.plus = sort(points[which(points >= 0)], decreasing = TRUE)

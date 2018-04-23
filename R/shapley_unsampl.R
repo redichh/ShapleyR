@@ -1,7 +1,5 @@
-.onAttach <- function(libname, pkgname) {
-  packageStartupMessage("Welcome to the ShapleyR package!")
-}
-#' Calculates the exact shapley value for every player.
+#' Calculates the exact shapley value for every player based
+#' on the algorithm for cooperative game theory.
 #'
 #' @description Calculates the exact shapley value for every player.
 #' If you have N features/ players, there must be 2ˆN-1 rows in data.input. You can
