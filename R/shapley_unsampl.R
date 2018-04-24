@@ -1,7 +1,18 @@
-#######New version number 5
-#some style correction
-#deleted previous versions
-
+#' Calculates the exact shapley value for every player based
+#' on the algorithm for cooperative game theory.
+#'
+#' @description Calculates the exact shapley value for every player.
+#' If you have N features/ players, there must be 2ˆN-1 rows in data.input. You can
+#' leave the zero coalation away. Every row must be unique.
+#' Below you can see an examle data input:
+#' test.data = as.data.frame(rbind(c(1, 0, 5), c(0, 1, 4),c(1, 1, 10)))
+#' name(test.data) = c("A", "B", "value")
+#' And here with zero coalation:
+#' test.data = as.data.frame(rbind(c(0, 0, 0), c(1, 0, 5), c(0, 1, 4),c(1, 1, 10)))
+#' Player A has a coalation value of 5. Player A and B have a coalation value of 10.
+#' @param data.input
+#' @param target Put there the name of column with the results of the coalation-function.
+#' @export
 ##Asserts, Permutation and iteration through player
 shapley.unsampled = function(data.input = test, target = "value") {
   ##Assert
