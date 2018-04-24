@@ -76,7 +76,7 @@ shapley = function(row.nr, task, model, iterations = 30) {
     task.type = task.type,
     feature.names = getTaskFeatureNames(task),
     predict.type = getLearnerPredictType(model$learner),
-    prediction.response = getPredictionResponse(predict(model, newdata = getTaskData(task)[row.nr,])),
+    prediction.response = computeResponse(x, model),
     data.mean = computeDataMean(task, model),
     values = result
   )
@@ -145,6 +145,17 @@ computeDataMean = function(task, model) {
     result = tab[,2]
     names(result) = tab[,1]
     result = result / sum(result)
+  }
+
+  return(result)
+}
+
+computeResponse = function(x, model) {
+  result = NA
+  if(getLearnerPredictType(model$learner) == "prob") {
+    result = round(getPredictionProbabilities(predict(model, newdata = x)), 5)
+  } else {
+    result = getPredictionResponse(predict(model, newdata = x))
   }
 
   return(result)
