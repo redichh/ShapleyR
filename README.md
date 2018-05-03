@@ -12,7 +12,6 @@ The package can be installed directly from github with devtools (see following s
 ```
 
 ## Quickstart
-
 As a quickstart we will calculate the shapley values for a regression task. For that we take a look at the Boston Housing dataset. This is alredy included in the mlr-package and can be called with `bh.task` from the R terminal.
 The Dataset looks as following:
 
@@ -72,5 +71,8 @@ We see that this is not the case. But increasing the amount of iterations should
 [1] -0.1209629  0.7367561 -0.3352096 -0.1327698 -0.1692821 -0.1395219
 ```
 
-## Further information
+## Related Work
+tbd
+
+## More information
 In our Vignette can be found further information about this package. There is also shown the usage of plots for the shapley values.
