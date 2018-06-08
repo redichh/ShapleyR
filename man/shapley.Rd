@@ -4,25 +4,29 @@
 \alias{shapley}
 \title{Describes the difference between the expected value and the true outcome.}
 \usage{
-shapley(row.nr, task = bh.task, model = train(makeLearner("regr.lm"),
-  bh.task), iterations = 30)
+shapley(row.nr, task, model, iterations = 30)
 }
 \arguments{
-\item{row.nr}{Index for the observation of interest.}
+\item{row.nr}{Index for the observation of interest. It is possible to choose a range of rows.
+Input has to be a numeric.}
 
-\item{task}{mlr task that contains the data set.}
+\item{task}{Machine leraning task}
 
-\item{model}{Model for the corresponding task..}
+\item{model}{Model for the corresponding task. Input has to be a wrapped model.}
 
-\item{iterations}{Amount of iterations.}
+\item{iterations}{Amount of iterations within the shapley function. Input has to be a numeric.}
 }
 \value{
-A shapley object as a list containing several information. Among others the
-shapley.values are returned as a data.frame with the features as columns and
-their corresponding effects.
+A shapley object as a list containing several information. Among others the shapley.values
+are returned as a data.frame with the features as columns and their corresponding effects.
 }
 \description{
-Takes an observation, the corresponding dataset where x is from
-  and the algorithm that was applied to the dataset. With this input the
-  shapley value for all features is calculated.
+Calculates the approximated shapley value for every feature for a chosen observation
+(row.nr). Supported tasks are reggression, multilabeling, clustering and classification tasks.
+The result contains a lot of information about the task type, feature names, predict type,
+prediction response, mean of the target variable(s) and the shapley values for every feature.
+
+The implemented algorithm is taken from "Erik Štrumbelj and Igor Kononenko. 2014. Explaining
+prediction models and individual predictions with feature contributions. Knowl. Inf. Syst. 41, 3
+(December 2014), 647-665".
 }

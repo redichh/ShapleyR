@@ -3,25 +3,21 @@
 }
 #' Describes the difference between the expected value and the true outcome.
 #'
-#' @description Calculates the approximated shapley value for every feature for a chosen observation (row.nr).
-#' Supported tasks are reggression, multilabeling, clustering and classification tasks.
-#' It is also possible to calculate the exact shapley value (not for mlr).
-#' You can plot the results with the shiny app (not for multilabel).
-#' The Shapley function gives you as output many informations like task type, feature names,
-#' predict type, prediction response, mean of data and the shapley values for every feature.
-#' You get the information by using the get-functions, which are described below (Getters).
-#' For further informations and examples check out our vignette.
-#' The shapley algorithm is from this paper (Algorithm 1):
-#' Erik Štrumbelj and Igor Kononenko. 2014. Explaining prediction models and individual predictions
-#' with feature contributions. Knowl. Inf. Syst. 41, 3 (December 2014), 647-665
+#' @description Calculates the approximated shapley value for every feature for a chosen observation
+#' (row.nr). Supported tasks are reggression, multilabeling, clustering and classification tasks.
+#' The result contains a lot of information about the task type, feature names, predict type,
+#' prediction response, mean of the target variable(s) and the shapley values for every feature.
+#'
+#' The implemented algorithm is taken from "Erik Strumbelj and Igor Kononenko. 2014. Explaining
+#' prediction models and individual predictions with feature contributions. Knowl. Inf. Syst. 41, 3
+#' (December 2014), 647-665".
 #' @param row.nr Index for the observation of interest. It is possible to choose a range of rows.
 #' Input has to be a numeric.
 #' @param task Machine leraning task
 #' @param model Model for the corresponding task. Input has to be a wrapped model.
 #' @param iterations Amount of iterations within the shapley function. Input has to be a numeric.
-#' @return A shapley object as a list containing several information. Among others the
-#' shapley.values are returned as a data.frame with the features as columns and
-#' their corresponding effects.
+#' @return A shapley object as a list containing several information. Among others the shapley.values
+#' are returned as a data.frame with the features as columns and their corresponding effects.
 #' @export
 shapley = function(row.nr, task, model, iterations = 30) {
   assert_numeric(row.nr, min.len = 1, lower = 1, upper = nrow(getTaskData(task)))
@@ -36,7 +32,7 @@ shapley = function(row.nr, task, model, iterations = 30) {
   b1 = data.frame(subset(x, select = feature.names))
   b1[1:(nrow(x) * iterations * length(feature.names)),] = NA
   b2 = b1
-  result = prepareResult(x, task, model)
+  values = prepareResult(x, task, model)
 
   for(f in 1:length(feature.names)) {
     feature = feature.names[f]
@@ -68,7 +64,7 @@ shapley = function(row.nr, task, model, iterations = 30) {
       p.indices = custom.ifelse(getLearnerPredictType(model$learner) == "response",
         seq((f-1) * nrow(x) * iterations + i, f * nrow(x) * iterations, nrow(x)),
         iterations * (i-1) + 1:iterations)
-      result[r.indices, feature] = computePartialResult(predict_b1, predict_b2, p.indices, task.type)
+      values[r.indices, feature] = computePartialResult(predict_b1, predict_b2, p.indices, task.type)
     }
   }
 
@@ -78,7 +74,7 @@ shapley = function(row.nr, task, model, iterations = 30) {
     predict.type = getLearnerPredictType(model$learner),
     prediction.response = computeResponse(x, model),
     data.mean = computeDataMean(task, model),
-    values = result
+    values = values
   )
 
   return(result)
