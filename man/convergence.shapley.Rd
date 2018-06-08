@@ -4,23 +4,28 @@
 \alias{convergence.shapley}
 \title{Tests that the shapley algorithm converges.}
 \usage{
-convergence.shapley(row.nr = 2, convergence.iterations = 100,
-  iterations = 1, task = bh.task, model = train(makeLearner("regr.lm"),
-  bh.task), return.value = "plot")
+convergence.shapley(row.nr, convergence.iterations = 30, iterations = 50,
+  task = bh.task, model = train(makeLearner("regr.lm"), bh.task),
+  return.value = "plot")
 }
 \arguments{
-\item{row.nr}{Index for the observation of interest.}
+\item{row.nr}{Index for one observation of interest (not possible to choose a range of rows).
+Input must be numeric.}
 
-\item{convergence.iterations}{Amount of calls of the shapley function.}
+\item{convergence.iterations}{Amount of calls of the shapley function. Input must be one numeric.}
 
-\item{iterations}{Amount of the iterations within the shapley function.}
+\item{iterations}{Amount of the iterations within the shapley function. Input must be one numeric.}
 
-\item{return.value}{You can choose between plotting results or getting a data frame}
+\item{return.value}{You can choose between plotting results or getting a data frame
+with "plot" or "values".}
 }
 \value{
 shapley values as a data.frame or a plot
 }
 \description{
-Tests that the sum of values from the shapley algorithm converges againts the
-  difference of data.mean and the prediction for the given observation.
+Tests that the sum of values from the shapley algorithm converges against the
+  difference of the mean of data and the prediction for the given observation. Supported tasks are
+  classification, clustering and regression. Note that only for regression it is possible to choose
+  to plot the result. For classification and clustering tasks, the predicted class (chosen with
+  row.nr) is marked like this: >>ClassName<< . The result should show that this class was chosen most often.
 }

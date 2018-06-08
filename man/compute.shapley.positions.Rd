@@ -7,7 +7,7 @@
 compute.shapley.positions(points, shift = 0)
 }
 \arguments{
-\item{points}{shapley.values}
+\item{points}{A vector of shapley.values for a single row}
 
 \item{shift}{data.mean}
 }
