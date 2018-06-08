@@ -6,9 +6,9 @@ The package can be installed directly from github with devtools (see following s
 
 ## Installation
 ```
-> install.packages("devtools")
-> devtools::install_github('redichh/shapleyR')
-> library(shapleyR)
+install.packages("devtools")
+devtools::install_github('redichh/shapleyR')
+library(shapleyR)
 ```
 
 ## Quickstart
