@@ -1,4 +1,4 @@
-Package: shapleyr
+Package: shapleyR
 Title: Shapley algorithm
 Version: 0.1
 Author: Hermann Redich <hredich@googlemail.com>
