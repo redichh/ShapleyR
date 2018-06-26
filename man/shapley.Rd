@@ -26,7 +26,7 @@ Calculates the approximated shapley value for every feature for a chosen observa
 The result contains a lot of information about the task type, feature names, predict type,
 prediction response, mean of the target variable(s) and the shapley values for every feature.
 
-The implemented algorithm is taken from "Erik Štrumbelj and Igor Kononenko. 2014. Explaining
+The implemented algorithm is taken from "Erik Strumbelj and Igor Kononenko. 2014. Explaining
 prediction models and individual predictions with feature contributions. Knowl. Inf. Syst. 41, 3
 (December 2014), 647-665".
 }

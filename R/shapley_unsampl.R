@@ -10,7 +10,7 @@
 #' And here with zero coalation:
 #' test.data = as.data.frame(rbind(c(0, 0, 0), c(1, 0, 5), c(0, 1, 4),c(1, 1, 10)))
 #' Player A has a coalation value of 5. Player A and B have a coalation value of 10.
-#' @param data.input
+#' @param data.input A table with all possible observations.
 #' @param target Put there the name of column with the results of the coalation-function.
 #' @export
 ##Asserts, Permutation and iteration through player
