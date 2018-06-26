@@ -8,6 +8,8 @@ on the algorithm for cooperative game theory.}
 shapley.unsampled(data.input = test, target = "value")
 }
 \arguments{
+\item{data.input}{A table with all possible observations.}
+
 \item{target}{Put there the name of column with the results of the coalation-function.}
 }
 \description{
